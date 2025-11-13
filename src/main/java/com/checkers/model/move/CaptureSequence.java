@@ -33,10 +33,6 @@ public class CaptureSequence extends Capture {
         return sb.toString();
     }
 
-    public boolean isMandatory() {
-        return true;
-    }
-
     public Iterator<Move> iterator() {
         List<Move> moves = new ArrayList<>();
         moves.addAll(captureSequence);

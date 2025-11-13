@@ -18,35 +18,28 @@ public abstract class Move {
         this.onInvertedBoard = onInvertedBoard;
     }
 
-
-    public String toString() {
-        Point absoluteFrom = onInvertedBoard ? Board.invertPoint(from) : from;
-        Point absoluteTo = onInvertedBoard ? Board.invertPoint(to) : to;
-        return Board.squareNumberFromPoint(absoluteFrom) + "-" + Board.squareNumberFromPoint(absoluteTo);
-    }
-
     public Point getFrom() {
         return from;
     } 
-
+    
     public Point getTo() {
         return to;
     }
-
+    
     public boolean getOnInvertedBoard() {
         return onInvertedBoard;
     }
-
-
+    
     public boolean isPromotion() {
         return to.y == 0;
     }
-
+    
     public Iterator<Move> iterator() {
         return List.of(this).iterator();
     }
-
+    
     public abstract void execute(Board board);
     public abstract boolean isMandatory();
+    public abstract String toString();
 
 }

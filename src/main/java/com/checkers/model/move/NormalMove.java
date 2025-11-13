@@ -10,6 +10,12 @@ public class NormalMove extends Move {
         super(from, to, onInvertedBoard);
     }
 
+    public String toString() {
+        Point absoluteFrom = onInvertedBoard ? Board.invertPoint(from) : from;
+        Point absoluteTo = onInvertedBoard ? Board.invertPoint(to) : to;
+        return Board.squareNumberFromPoint(absoluteFrom) + "-" + Board.squareNumberFromPoint(absoluteTo);
+    }
+
     public boolean isMandatory() {
         return false;
     }

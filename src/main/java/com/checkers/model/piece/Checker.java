@@ -28,7 +28,7 @@ public class Checker extends Piece {
      * @param previosCaptures az előzőleg előállított ütéssorozat, az ütéssorozatok rekurzív előállításához szükséges paraméter
      * @return az elvégezhető ütések
      */
-    public List<Capture> validCaptures(Board board, Point point, List<Capture> previosCaptures) {
+    private List<Capture> validCaptures(Board board, Point point, List<Capture> previosCaptures) {
         List<Capture> captures = new ArrayList<>();
 
         List<Point> diagonalDirections = List.of(new Point(1, -1), new Point(-1, -1));
@@ -64,7 +64,7 @@ public class Checker extends Piece {
      * @param point a pont, ahonnan az egyszerű lépeseket el akarjuk végezni
      * @return az elvégezhető egyszerű lépések
      */
-    public List<Move> validNormalMoves(Board board, Point point) {
+    private List<Move> validNormalMoves(Board board, Point point) {
         List<Move> moves = new ArrayList<>();
 
         List<Point> diagonalDirections = List.of(new Point(1, -1), new Point(-1, -1));
