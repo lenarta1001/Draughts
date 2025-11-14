@@ -41,5 +41,6 @@ public abstract class Move {
     public abstract void execute(Board board);
     public abstract boolean isMandatory();
     public abstract String toString();
+    public abstract boolean equals(Object o);
 
 }

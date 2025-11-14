@@ -29,4 +29,17 @@ public class NormalMove extends Move {
         }
         table.setPiece(null, from);
     }
+
+    public boolean equals(Object o) {
+        if (this == o) { 
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        NormalMove other = (NormalMove) o;
+        return from.equals(other.from) && to.equals(other.to) && onInvertedBoard == other.onInvertedBoard;
+    }
 }

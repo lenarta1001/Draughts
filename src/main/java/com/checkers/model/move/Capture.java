@@ -16,6 +16,10 @@ public class Capture extends Move {
         return Board.squareNumberFromPoint(absoluteFrom) + "x" + Board.squareNumberFromPoint(absoluteTo);
     }
 
+    public boolean isMandatory() {
+        return true;
+    }
+    
     public void execute(Board board) {
         if (!isPromotion()) {
             board.setPiece(board.getPiece(getFrom()), getTo());
@@ -28,7 +32,16 @@ public class Capture extends Move {
         board.setPiece(null, capturedPoint);
     }
 
-    public boolean isMandatory() {
-        return true;
+    public boolean equals(Object o) {
+        if (this == o) { 
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        Capture other = (Capture) o;
+        return from.equals(other.from) && to.equals(other.to) && onInvertedBoard == other.onInvertedBoard;
     }
 }

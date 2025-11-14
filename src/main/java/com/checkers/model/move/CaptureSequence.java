@@ -38,4 +38,18 @@ public class CaptureSequence extends Capture {
         moves.addAll(captureSequence);
         return moves.iterator();
 	}
+
+    public boolean equals(Object o) {
+        if (this == o) { 
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        CaptureSequence other = (CaptureSequence) o;
+        return from.equals(other.from) && to.equals(other.to) 
+            && onInvertedBoard == other.onInvertedBoard && captureSequence.equals(other.captureSequence);
+    }
 }
