@@ -129,26 +129,45 @@ public class Game {
                         throw new FileFormatException("Cannot parse file. A round number is not correct!");
                     }
                 } catch (NumberFormatException e) {
-                    throw new FileFormatException("Cannot parse file. A round number is not correct!");
+                    throw new FileFormatException("Cannot parse file. A round number is not correct!", e);
                 }
 
                 if (roundAndMoveStrings.length == 3) {
 
-                    Move blackMove = Move.moveFromString(roundAndMoveStrings[1], board);
+                    Move blackMove;
+                    try {
+                        blackMove = Move.moveFromString(roundAndMoveStrings[1], board);
+                    } catch (IllegalArgumentException e) {
+                        throw new FileFormatException("Cannot parse file. A move is not correct!", e);
+                    }
                     if (validMovesOfPlayerToMove().stream().anyMatch(move -> move.equals(blackMove))) { 
                         blackMove.execute(board);
                         endRound(blackMove);
                     } else {
-                        throw new InvalidMoveException("There is an invalid move in the file according to the rules");
+                        throw new InvalidMoveException("There is an invalid move in the file according to the rules!");
                     }
 
-                    Move whiteMove = Move.moveFromString(roundAndMoveStrings[2], board);
+                    if (isGameOver() || isDraw()) {
+                        break;
+                    }
+
+                    Move whiteMove;
+                    try {
+                        whiteMove = Move.moveFromString(roundAndMoveStrings[2], board);
+                    } catch (IllegalArgumentException e) {
+                        throw new FileFormatException("Cannot parse file. A move is not correct!", e);
+                    }
                     if (validMovesOfPlayerToMove().stream().anyMatch(move -> move.equals(whiteMove))) {
                         whiteMove.execute(board);
                         endRound(whiteMove);
                     } else {
-                        throw new InvalidMoveException("There is an invalid move in the file according to the rules");
+                        throw new InvalidMoveException("There is an invalid move in the file according to the rules!");
                     }
+
+                    if (isGameOver() || isDraw()) {
+                        break;
+                    }
+
                 } else if (roundAndMoveStrings.length == 2) {
                     Move blackMove = Move.moveFromString(roundAndMoveStrings[1], board);
                     if (validMovesOfPlayerToMove().stream().anyMatch(move -> move.equals(blackMove))) { 
