@@ -181,7 +181,34 @@ public class testGame {
     @Test
     public void testSerializationRoundNumberFormat() throws IOException, InvalidMoveException {
         Game game = new Game();
-        Path path = Paths.get("test-data", "game_with_round_number_problem.txt");
+        Path path = Paths.get("test-data", "game_with_round_number_incorrect.txt");
+        assertThrows(FileFormatException.class, 
+            () -> { game.read(path.toString()); }
+        );
+    }
+
+    @Test
+    public void testSerializationNumberFormat() throws IOException, InvalidMoveException {
+        Game game = new Game();
+        Path path = Paths.get("test-data", "game_with_round_number_invalid.txt");
+        assertThrows(FileFormatException.class, 
+            () -> { game.read(path.toString()); }
+        );
+    }
+
+    @Test
+    public void testSerializationTooManyArguments() throws IOException, InvalidMoveException {
+        Game game = new Game();
+        Path path = Paths.get("test-data", "game_with_too_many_arguments.txt");
+        assertThrows(FileFormatException.class, 
+            () -> { game.read(path.toString()); }
+        );
+    }
+
+    @Test
+    public void testSerializationLineAfterHalfLine() throws IOException, InvalidMoveException {
+        Game game = new Game();
+        Path path = Paths.get("test-data", "game_with_extra_line.txt");
         assertThrows(FileFormatException.class, 
             () -> { game.read(path.toString()); }
         );
