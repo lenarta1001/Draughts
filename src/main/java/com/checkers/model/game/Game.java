@@ -2,7 +2,6 @@ package com.checkers.model.game;
 
 import java.util.List;
 import java.util.Scanner;
-import java.util.stream.Collectors;
 import java.awt.Point;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -24,7 +23,14 @@ public class Game {
     private HashMap<String, Integer> positionCounts;
     private int noPromotionCaptureCounter;
 
-    
+    Board getBoard() {
+        return board;
+    }
+
+    Colour getPlayerToMove() {
+        return playerToMove;
+    }
+
     public boolean isGameOver() {
         return validMovesOfPlayerToMove().isEmpty();
     }
@@ -43,20 +49,18 @@ public class Game {
                 moves.addAll(board.getPiece(p).validMoves(board, p));
             }
         }
-        boolean includesMandatory = moves.stream().anyMatch(Move::isMandatory);
-
-        if (includesMandatory) {
-            moves.removeIf(m -> !m.isMandatory());
-        }
 
         return moves;
     }
 
     public List<Move> validMovesAt(Point point) {
-        return validMovesOfPlayerToMove().stream().filter(move -> move.getFrom().equals(point)).collect(Collectors.toList());
+        if (!Board.isInsideBoard(point) || board.isEmpty(point) || board.getPiece(point).getColour() != playerToMove) {
+            return new ArrayList<>();
+        }
+        return board.getPiece(point).validMoves(board, point);
     }
     
-    public void initialize() {
+    public void initGame() {
         this.playerToMove = Colour.black;
         this.board = Board.initBoard();
         this.moves = new ArrayList<>();
@@ -64,7 +68,7 @@ public class Game {
         this.noPromotionCaptureCounter = 0;
     }
 
-    public void cleanInitialize() {
+    public void cleanInitGame() {
         this.playerToMove = Colour.black;
         this.board = new Board();
         this.moves = new ArrayList<Move>();
@@ -72,29 +76,30 @@ public class Game {
         this.noPromotionCaptureCounter = 0;
     }
 
-    public boolean endRound(Move move) {
-        if (move.isMandatory() || move.isPromotion()) {
+    public void endRound(Move move) {
+        if (move.isMandatory() || move.isPromotion(board)) {
             noPromotionCaptureCounter = 0;
             positionCounts.clear();
-        }
-
-        Integer count = positionCounts.get(board.getFen(playerToMove));
-        if (count == null) {
-            positionCounts.put(board.getFen(playerToMove),1);
         } else {
-            positionCounts.put(board.getFen(playerToMove), count + 1);
+            noPromotionCaptureCounter++;
         }
-
+        String fen = board.getFen(playerToMove);
+        Integer count = positionCounts.get(fen);
+        if (count == null) {
+            positionCounts.put(fen, 1);
+        } else {
+            positionCounts.put(fen, count + 1);
+        }
+        moves.add(move);
         playerToMove = Colour.opposite(playerToMove);
         board.invert();
-        return isGameOver();
     }
 
     public void write(String fileName) throws IOException {
-        BufferedWriter bw = new BufferedWriter(new FileWriter(fileName + ".txt"));
+        BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
          
         for (int round = 0; round < moves.size() / 2; round++) {
-            bw.write((round + 1) + ". " + moves.get(round * 2) + moves.get(round * 2 + 1));
+            bw.write((round + 1) + ". " + moves.get(round * 2) + " " + moves.get(round * 2 + 1));
             bw.newLine();
         }
         if (moves.size() % 2 == 1) {
@@ -105,96 +110,64 @@ public class Game {
     }
 
 
-    public void read(String fileName) throws FileNotFoundException, FileFormatException {
-        cleanInitialize();
+    public void read(String fileName) throws FileNotFoundException, FileFormatException, InvalidMoveException {
+        initGame();
         File file = new File(fileName);
+        int roundNumber = 1;
         try (Scanner sc = new Scanner(file)) {
             while (sc.hasNextLine()) {
                 String line = sc.nextLine();
                 line = line.trim();
-                if (line.charAt(0) == '[') {
+                if (line.length() == 0 || line.charAt(0) == '[') {
                     continue;
                 }
                 String[] roundAndMoveStrings = line.split(" ");
+
+                try {
+                    int readRoundNumber = Integer.parseInt(roundAndMoveStrings[0].replace(".", ""));
+                    if (readRoundNumber != roundNumber) {
+                        throw new FileFormatException("Cannot parse file. A round number is not correct!");
+                    }
+                } catch (NumberFormatException e) {
+                    throw new FileFormatException("Cannot parse file. A round number is not correct!");
+                }
+
                 if (roundAndMoveStrings.length == 3) {
-                    Move blackMove = moveFromString(roundAndMoveStrings[1], Colour.black);
-                    Move whiteMove = moveFromString(roundAndMoveStrings[2], Colour.white);
-                    blackMove.execute(board);
-                    endRound(blackMove);
-                    whiteMove.execute(board);
-                    endRound(whiteMove);
+
+                    Move blackMove = Move.moveFromString(roundAndMoveStrings[1], board);
+                    if (validMovesOfPlayerToMove().stream().anyMatch(move -> move.equals(blackMove))) { 
+                        blackMove.execute(board);
+                        endRound(blackMove);
+                    } else {
+                        throw new InvalidMoveException("There is an invalid move in the file according to the rules");
+                    }
+
+                    Move whiteMove = Move.moveFromString(roundAndMoveStrings[2], board);
+                    if (validMovesOfPlayerToMove().stream().anyMatch(move -> move.equals(whiteMove))) {
+                        whiteMove.execute(board);
+                        endRound(whiteMove);
+                    } else {
+                        throw new InvalidMoveException("There is an invalid move in the file according to the rules");
+                    }
                 } else if (roundAndMoveStrings.length == 2) {
-                    Move blackMove = moveFromString(roundAndMoveStrings[1], Colour.black);
-                    blackMove.execute(board);
-                    endRound(blackMove);
+                    Move blackMove = Move.moveFromString(roundAndMoveStrings[1], board);
+                    if (validMovesOfPlayerToMove().stream().anyMatch(move -> move.equals(blackMove))) { 
+                        blackMove.execute(board);
+                        endRound(blackMove);
+                    } else {
+                        throw new InvalidMoveException("There is an invalid move in the file according to the rules");
+                    }
                     break;
                 } else {
                     throw new FileFormatException("Cannot parse file!");
                 }
+                roundNumber++;
             }
-
             if (sc.hasNextLine()) {
-                throw new FileFormatException("Cannot parse file!");
+                throw new FileFormatException("Cannot parse file! There are more lines");
             }
         }
         
 
     }
-     
-    private Move moveFromString(String moveString, Colour player) throws FileFormatException {
-        Move move;
-
-        if (moveString.contains("-")) {
-
-            String[] postions = moveString.split("-");
-
-            if (postions.length != 2) {
-                throw new FileFormatException("Cannot parse file!");
-            }
-
-            int fromNumber = Integer.parseInt(postions[0]);
-            int toNumber = Integer.parseInt(postions[1]);
-            boolean onInvertedBoard = player == Colour.white;
-            Point from = onInvertedBoard ? Board.invertPoint(Board.pointFromSquareNumber(fromNumber)) : Board.pointFromSquareNumber(fromNumber);
-            Point to = onInvertedBoard ? Board.invertPoint(Board.pointFromSquareNumber(toNumber)) : Board.pointFromSquareNumber(toNumber);
-
-            move = new NormalMove(from, to, onInvertedBoard);
-
-        } else if (moveString.contains("x")) {
-
-            String[] postions = moveString.split("x");
-
-            if (postions.length >= 2) {
-
-                boolean onInvertedBoard = player == Colour.white;
-                List<Capture> captures = new ArrayList<>();
-
-                for (int i = 0; i < postions.length - 1; i++) {
-
-                    int fromNumber = Integer.parseInt(postions[i]);
-                    int toNumber = Integer.parseInt(postions[i + 1]);
-
-                    Point from = onInvertedBoard ? Board.invertPoint(Board.pointFromSquareNumber(fromNumber)) : Board.pointFromSquareNumber(fromNumber);
-                    Point to = onInvertedBoard ? Board.invertPoint(Board.pointFromSquareNumber(toNumber)) : Board.pointFromSquareNumber(toNumber);
-
-                    captures.add(new Capture(from, to, onInvertedBoard));
-
-                }
-
-                if (captures.size() == 1) {
-                    move = captures.getFirst();
-                } else {
-                    move = new CaptureSequence(captures, onInvertedBoard);
-                }
-            } else {
-                throw new FileFormatException("Cannot parse file!");
-            }
-        } else {
-            throw new FileFormatException("Cannot parse file!");
-        }
-
-        return move;
-    }
-
-
 }

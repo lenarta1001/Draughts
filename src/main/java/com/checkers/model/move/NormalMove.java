@@ -20,14 +20,14 @@ public class NormalMove extends Move {
         return false;
     }
 
-    public void execute(Board table) {
-        if (!isPromotion()) {
-            table.setPiece(table.getPiece(from), to);
+    public void execute(Board board) {
+        if (!isPromotion(board)) {
+            board.setPiece(board.getPiece(from), to);
         } else {
-            Colour colour = table.getPiece(from).getColour();
-            table.setPiece(new King(colour), to);
+            Colour colour = board.getPiece(from).getColour();
+            board.setPiece(new King(colour), to);
         }
-        table.setPiece(null, from);
+        board.setPiece(null, from);
     }
 
     public boolean equals(Object o) {

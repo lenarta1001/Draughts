@@ -21,7 +21,7 @@ public class Capture extends Move {
     }
     
     public void execute(Board board) {
-        if (!isPromotion()) {
+        if (!isPromotion(board)) {
             board.setPiece(board.getPiece(getFrom()), getTo());
         } else {
             Colour colour = board.getPiece(getFrom()).getColour();
