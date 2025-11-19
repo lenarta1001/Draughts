@@ -105,7 +105,7 @@ public class testBoard {
     }
 
     @Test
-    public void testFenInverted() {
+    void testFenInverted() {
         Board board = Board.initBoard();
         board.setPiece(new King(Colour.white), new Point(1, 0));
         board.invert();
@@ -113,7 +113,7 @@ public class testBoard {
     }
 
     @Test
-    public void testInvertPoint() {
+    void testInvertPoint() {
         assertEquals(new Point(1, 0), Board.invertPoint(new Point(6, 7)));
     }
 }
