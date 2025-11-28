@@ -6,7 +6,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.checkers.model.move.*;
+import com.checkers.view.GamePanel;
 import com.checkers.model.board.Board;
+import com.checkers.model.colour.Colour;
 
 
 /**
@@ -95,5 +97,9 @@ public class Checker extends Piece {
         moves.addAll(captures);
 
         return moves;
+    }
+
+    public void draw(GamePanel gp, int x, int y) {
+        gp.drawChecker(this, x, y);
     }
 }

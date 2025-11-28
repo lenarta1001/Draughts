@@ -2,11 +2,12 @@ package com.checkers.model.move;
 
 import java.awt.Point;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import com.checkers.model.board.*;
+import com.checkers.model.game.Game;
 import com.checkers.model.piece.*;
+import com.checkers.view.GamePanel;
 
 
 public abstract class Move {
@@ -35,10 +36,7 @@ public abstract class Move {
     public boolean isPromotion(Board board) {
         return to.y == 0 && board.getPiece(from) instanceof Checker;
     }
-    
-    public Iterator<Move> iterator() {
-        return List.of(this).iterator();
-    }
+
 
     public static Move moveFromString(String moveString, Board board) throws IllegalArgumentException {
         Move move;
@@ -109,9 +107,10 @@ public abstract class Move {
         return move;
     }
     
-    public abstract void execute(Board board);
+    public abstract void execute(Game game);
     public abstract boolean isMandatory();
     public abstract String toString();
     public abstract boolean equals(Object o);
+    public abstract void draw(GamePanel gp);
 
 }

@@ -1,7 +1,9 @@
 package com.checkers.model.piece;
 
 import com.checkers.model.move.*;
+import com.checkers.view.GamePanel;
 import com.checkers.model.board.Board;
+import com.checkers.model.colour.Colour;
 
 import java.awt.Point;
 import java.util.ArrayList;
@@ -103,6 +105,10 @@ public class King extends Piece {
      */
     public String toString() {
         return "K";
+    }
+
+    public void draw(GamePanel gp, int x, int y) {
+        gp.drawKing(this, x, y);
     }
     
 }

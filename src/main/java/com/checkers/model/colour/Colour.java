@@ -1,4 +1,4 @@
-package com.checkers.model.piece;
+package com.checkers.model.colour;
 
 /**
  * A színhez felsorolt típus 

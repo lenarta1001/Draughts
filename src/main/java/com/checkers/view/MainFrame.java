@@ -8,13 +8,14 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.WindowConstants;
 
 
 public class MainFrame extends JFrame {
     
-    public MainFrame(BoardPanel boardPanel) {
+    public MainFrame(GamePanel boardPanel) {
         super("Checkers");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         add(boardPanel, BorderLayout.CENTER);
         setJMenuBar(createJMenuBar());
         setPreferredSize(new Dimension(500, 500));

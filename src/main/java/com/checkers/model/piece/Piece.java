@@ -4,7 +4,9 @@ import java.awt.Point;
 import java.util.List;
 
 import com.checkers.model.move.*;
+import com.checkers.view.GamePanel;
 import com.checkers.model.board.Board;
+import com.checkers.model.colour.Colour;
 
 
 /**
@@ -43,4 +45,6 @@ public abstract class Piece {
      * @return az elvégezhető összes lépés
      */
     public abstract List<Move> validMoves(Board table, Point point);
+
+    public abstract void draw(GamePanel gp, int x, int y);  
 }

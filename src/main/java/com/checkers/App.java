@@ -2,7 +2,7 @@ package com.checkers;
 
 import com.checkers.control.GameController;
 import com.checkers.model.game.Game;
-import com.checkers.view.BoardPanel;
+import com.checkers.view.GamePanel;
 import com.checkers.view.MainFrame;
 
 public class App {
@@ -12,7 +12,7 @@ public class App {
             () -> {
                 Game game = new Game();
                 game.initGame();
-                new MainFrame(new BoardPanel(game, new GameController(game)));
+                new MainFrame(new GamePanel(game, new GameController(game)));
             }
         );
     }

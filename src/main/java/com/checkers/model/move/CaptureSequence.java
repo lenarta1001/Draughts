@@ -1,11 +1,11 @@
 package com.checkers.model.move;
 
 import java.awt.Point;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import com.checkers.model.board.*;
+import com.checkers.model.game.Game;
+import com.checkers.view.GamePanel;
 
 public class CaptureSequence extends Capture {
     protected List<Capture> captureSequence;
@@ -15,10 +15,12 @@ public class CaptureSequence extends Capture {
         this.captureSequence = captureSequence;
     }
 
-    public void execute(Board board) {
-        for (Capture capture : captureSequence) {
-            capture.execute(board);
-        }
+    public List<Capture> getCaptureSequence() {
+        return captureSequence;
+    }
+
+    public void execute(Game game) {
+        game.executeCaptureSequence(this);
     }
 
     public String toString() {
@@ -33,12 +35,6 @@ public class CaptureSequence extends Capture {
         return sb.toString();
     }
 
-    public Iterator<Move> iterator() {
-        List<Move> moves = new ArrayList<>();
-        moves.addAll(captureSequence);
-        return moves.iterator();
-	}
-
     public boolean equals(Object o) {
         if (this == o) { 
             return true;
@@ -51,5 +47,9 @@ public class CaptureSequence extends Capture {
         CaptureSequence other = (CaptureSequence) o;
         return from.equals(other.from) && to.equals(other.to) 
             && onInvertedBoard == other.onInvertedBoard && captureSequence.equals(other.captureSequence);
+    }
+
+    public void draw(GamePanel gp) {
+        gp.drawCaptureSequence(this);
     }
 }

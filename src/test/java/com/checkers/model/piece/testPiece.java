@@ -8,6 +8,7 @@ import java.util.List;
 import org.junit.jupiter.api.*;
 
 import com.checkers.model.board.Board;
+import com.checkers.model.colour.Colour;
 import com.checkers.model.move.*;
 
 public class testPiece {

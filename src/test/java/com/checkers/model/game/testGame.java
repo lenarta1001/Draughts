@@ -14,6 +14,7 @@ import org.junit.jupiter.api.*;
 import com.checkers.model.FileFormatException;
 import com.checkers.model.InvalidMoveException;
 import com.checkers.model.board.*;
+import com.checkers.model.colour.Colour;
 import com.checkers.model.move.*;
 import com.checkers.model.piece.*;
 
@@ -28,7 +29,7 @@ public class testGame {
 
         List<Move> moves = board.getPiece(Board.pointFromSquareNumber(11)).validMoves(board, Board.pointFromSquareNumber(11));
         Move capture = moves.stream().filter(move -> move instanceof Capture).findFirst().orElse(null);
-        game.execute(capture);
+        game.getPlayerToMove().handleTurn(game, capture);
         assertTrue(game.isGameOver());
     }
 
@@ -49,17 +50,17 @@ public class testGame {
             if (i % 2 == 0) {
                 movesOfBlack = board.getPiece(Board.pointFromSquareNumber(5)).validMoves(board, Board.pointFromSquareNumber(5));
                 normalMoveOfBlack = movesOfBlack.stream().filter(move -> move.getTo().equals(Board.pointFromSquareNumber(1))).findFirst().orElse(null);
-                game.execute(normalMoveOfBlack);
+                game.getPlayerToMove().handleTurn(game, normalMoveOfBlack);
                 movesOfWhite = board.getPiece(Board.pointFromSquareNumber(5)).validMoves(board, Board.pointFromSquareNumber(5));
                 normalMoveOfWhite = movesOfWhite.stream().filter(move -> move.getTo().equals(Board.pointFromSquareNumber(1))).findFirst().orElse(null);
-                game.execute(normalMoveOfWhite);
+                game.getPlayerToMove().handleTurn(game, normalMoveOfWhite);
             } else {
                 movesOfBlack = board.getPiece(Board.pointFromSquareNumber(1)).validMoves(board, Board.pointFromSquareNumber(1));
                 normalMoveOfBlack = movesOfBlack.stream().filter(move -> move.getTo().equals(Board.pointFromSquareNumber(5))).findFirst().orElse(null);
-                game.execute(normalMoveOfBlack);
+                game.getPlayerToMove().handleTurn(game, normalMoveOfBlack);
                 movesOfWhite = board.getPiece(Board.pointFromSquareNumber(1)).validMoves(board, Board.pointFromSquareNumber(1));
                 normalMoveOfWhite = movesOfWhite.stream().filter(move -> move.getTo().equals(Board.pointFromSquareNumber(5))).findFirst().orElse(null);
-                game.execute(normalMoveOfWhite);
+                game.getPlayerToMove().handleTurn(game, normalMoveOfWhite);
             }
         }
     
@@ -83,13 +84,12 @@ public class testGame {
             List<Move> movesOfBlack = board.getPiece(Board.pointFromSquareNumber(squareNumbersOfBlackCircle.get(i % blackCircleSize))).validMoves(board, Board.pointFromSquareNumber(squareNumbersOfBlackCircle.get(i % blackCircleSize)));
             Point nextPointBlack = Board.pointFromSquareNumber(squareNumbersOfBlackCircle.get((i + 1) % blackCircleSize));
             Move normalMoveOfBlack = movesOfBlack.stream().filter(move -> move.getTo().equals(nextPointBlack)).findFirst().orElse(null);
-            normalMoveOfBlack.execute(board);
-            game.execute(normalMoveOfBlack);
+            game.getPlayerToMove().handleTurn(game, normalMoveOfBlack);
 
             List<Move> movesOfWhite = board.getPiece(Board.invertPoint(Board.pointFromSquareNumber(squareNumbersOfWhiteCircle.get(i % whiteCircleSize)))).validMoves(board, Board.invertPoint(Board.pointFromSquareNumber(squareNumbersOfWhiteCircle.get(i % whiteCircleSize))));
             Point nextPointWhite = Board.invertPoint(Board.pointFromSquareNumber(squareNumbersOfWhiteCircle.get((i + 1) % whiteCircleSize)));
             Move normalMoveOfWhite = movesOfWhite.stream().filter(move -> move.getTo().equals(nextPointWhite)).findFirst().orElse(null);
-            game.execute(normalMoveOfWhite);
+            game.getPlayerToMove().handleTurn(game, normalMoveOfWhite);
         }
     
         assertTrue(game.isDraw());
@@ -100,46 +100,46 @@ public class testGame {
         Game game = new Game();
         game.cleanInitGame();
         Board board = game.getBoard();
-        board.setPiece(new King(Colour.black), Board.pointFromSquareNumber(10));
-        board.setPiece(new King(Colour.black), Board.pointFromSquareNumber(9));
+        board.setPiece(new Checker(Colour.black), Board.pointFromSquareNumber(10));
+        board.setPiece(new Checker(Colour.black), Board.pointFromSquareNumber(9));
 
-        List<Move> moves = game.validMovesOfPlayerToMove();
+        List<Move> moves = game.getPlayerToMove().validMoves(game);
         List<Move> expectedMoves = new ArrayList<>();
+        expectedMoves.add(new NormalMove(Board.pointFromSquareNumber(9), Board.pointFromSquareNumber(13), false));
         expectedMoves.add(new NormalMove(Board.pointFromSquareNumber(10), Board.pointFromSquareNumber(14), false));
         expectedMoves.add(new NormalMove(Board.pointFromSquareNumber(10), Board.pointFromSquareNumber(13), false));
-        expectedMoves.add(new NormalMove(Board.pointFromSquareNumber(9), Board.pointFromSquareNumber(13), false));
 
-        moves.equals(expectedMoves);
+        assertEquals(expectedMoves, moves);
     }
 
     @Test
-    public void testValidMovesAt() {
+    public void testValidMovesAtPlayerToMove() {
         Game game = new Game();
         game.cleanInitGame();
         Board board = game.getBoard();
-        board.setPiece(new King(Colour.black), Board.pointFromSquareNumber(10));
-        board.setPiece(new King(Colour.black), Board.pointFromSquareNumber(9));
+        board.setPiece(new Checker(Colour.black), Board.pointFromSquareNumber(10));
+        board.setPiece(new Checker(Colour.black), Board.pointFromSquareNumber(9));
 
-        List<Move> moves = game.validMovesAt(Board.pointFromSquareNumber(10));
+        List<Move> moves = game.getPlayerToMove().validMovesAt(game, Board.pointFromSquareNumber(10));
         List<Move> expectedMoves = new ArrayList<>();
         expectedMoves.add(new NormalMove(Board.pointFromSquareNumber(10), Board.pointFromSquareNumber(14), false));
         expectedMoves.add(new NormalMove(Board.pointFromSquareNumber(10), Board.pointFromSquareNumber(13), false));
 
-        moves.equals(expectedMoves);
+        assertEquals(expectedMoves, moves);
     }
 
     @Test
     public void testSerializationOneMove() throws InvalidMoveException, IOException {
         Game game = new Game();
         game.initGame();
-        Move move = game.validMovesOfPlayerToMove().getFirst();
-        game.execute(move);
+        Move move = game.getPlayerToMove().validMoves(game).stream().filter(validMove -> validMove.getFrom().equals(Board.pointFromSquareNumber(9))).findFirst().orElse(null);
+        game.getPlayerToMove().handleTurn(game, move);
 
         Board board = game.getBoard();
         Path path = Paths.get("test-data", "game.txt");
         game.write(path.toString());
         game.read(path.toString());
-        assertEquals(board.getFen(Colour.white), game.getBoard().getFen(game.getPlayerToMove()));   
+        assertEquals(board.getFen(game.getPlayerToMove()), game.getBoard().getFen(game.getPlayerToMove()));   
     }
 
     
@@ -147,17 +147,17 @@ public class testGame {
     public void testSerializationWithComments() throws IOException, InvalidMoveException {
         Game game = new Game();
         game.initGame();
-        Move blackMove = game.validMovesOfPlayerToMove().stream().filter(move -> move.getFrom().equals(Board.pointFromSquareNumber(9)) && move.getTo().equals(Board.pointFromSquareNumber(13))).findFirst().orElse(null);
-        game.execute(blackMove);
+        Move blackMove = game.getPlayerToMove().validMoves(game).stream().filter(move -> move.getFrom().equals(Board.pointFromSquareNumber(9)) && move.getTo().equals(Board.pointFromSquareNumber(13))).findFirst().orElse(null);
+        game.getPlayerToMove().handleTurn(game, blackMove);
 
-        Move whiteMove = game.validMovesOfPlayerToMove().stream().filter(move -> move.getFrom().equals(Board.pointFromSquareNumber(9)) && move.getTo().equals(Board.pointFromSquareNumber(13))).findFirst().orElse(null);
-        game.execute(whiteMove);
+        Move whiteMove = game.getPlayerToMove().validMoves(game).stream().filter(move -> move.getFrom().equals(Board.pointFromSquareNumber(9)) && move.getTo().equals(Board.pointFromSquareNumber(13))).findFirst().orElse(null);
+        game.getPlayerToMove().handleTurn(game, whiteMove);
 
         Board board = game.getBoard();
 
         Path path = Paths.get("test-data", "game_with_comments.txt");
         game.read(path.toString());
-        assertEquals(board.getFen(Colour.black), game.getBoard().getFen(game.getPlayerToMove()));   
+        assertEquals(board.getFen(game.getPlayerToMove()), game.getBoard().getFen(game.getPlayerToMove()));   
     }
 
     @Test

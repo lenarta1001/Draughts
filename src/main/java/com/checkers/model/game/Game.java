@@ -12,42 +12,47 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 
 import com.checkers.model.move.*;
 import com.checkers.model.board.Board;
+import com.checkers.model.colour.Colour;
 import com.checkers.model.piece.*;
+import com.checkers.model.player.HumanPlayer;
+import com.checkers.model.player.Player;
 import com.checkers.model.*;
 
 public class Game {
-    private Colour playerToMove;
     private Board board;
-    private List<Move> moves;
+    private Player playerToMove;
+    private Player playerNotToMove;
+    private List<Move> previousMoves;
     private HashMap<String, Integer> positionCounts;
     private int noPromotionCaptureCounter;
-    private Point selectedPoint;
     private final PropertyChangeSupport support = new PropertyChangeSupport(this);
 
-    
-    public Colour getPlayerToMove() {
+    public Game(Player playerToMove, Player playerNotToMove) {
+        this.playerToMove = playerToMove;
+        this.playerNotToMove = playerNotToMove; 
+    }
+
+    public Game() {
+        this(new HumanPlayer(Colour.black), new HumanPlayer(Colour.white));
+    }
+
+    public Player getPlayerToMove() {
         return playerToMove;
+    }
+
+    public Player getPlayerNotToMove() {
+        return playerNotToMove;
     }
 
     public Board getBoard() {
         return board;
     }
 
-    public Point getSelectedPoint() {
-        return selectedPoint;
-    }
-
-    public void setSelectedPoint(Point selectedPoint) {
-        this.selectedPoint = selectedPoint;
-        support.firePropertyChange("boardChange", null, null);
-    }
-
     public boolean isGameOver() {
-        return validMovesOfPlayerToMove().isEmpty();
+        return playerToMove.validMoves(this).isEmpty();
     }
 
     public boolean isDraw() {
@@ -55,61 +60,48 @@ public class Game {
         return repetition || noPromotionCaptureCounter >= 30;
     }
 
-    public List<Move> validMovesOfPlayerToMove() {
-        List<Move> validMoves = new ArrayList<>();
-        for (int i = 1; i <= 32; i++) {
-            Point p = Board.pointFromSquareNumber(i);
-
-            if (!board.isEmpty(p) && board.getPiece(p).getColour() == playerToMove) {
-                
-                validMoves.addAll(board.getPiece(p).validMoves(board, p));
-            }
-        }
-        if (validMoves.stream().anyMatch(move -> move.isMandatory())) {
-            validMoves = validMoves.stream().filter(move -> move.isMandatory()).toList();
-        }
-        return validMoves;
-    }
-
-    public List<Move> validMovesAt(Point point) {
-        List<Move> potentialMoves = board.getPiece(point).validMoves(board, point);
-        List<Move> validMoves = validMovesOfPlayerToMove(); 
-        if (!Board.isInsideBoard(point) || board.isEmpty(point)
-            || board.getPiece(point).getColour() != playerToMove) {
-            return new ArrayList<>();
-        }
-        return potentialMoves.stream().filter(move -> validMoves.contains(move)).toList();
-    }
     
     public void initGame() {
-        this.playerToMove = Colour.black;
-        this.board = Board.initBoard();
-        this.moves = new ArrayList<>();
+        this.board = new Board();
+        this.board.initBoard();
+        this.previousMoves = new ArrayList<>();
         this.positionCounts = new HashMap<>();
         this.noPromotionCaptureCounter = 0;
+        if (playerToMove.getColour() != Colour.black) {
+            swapPlayers();
+        }
     }
 
     public void cleanInitGame() {
-        this.playerToMove = Colour.black;
         this.board = new Board();
-        this.moves = new ArrayList<>();
+        this.previousMoves = new ArrayList<>();
         this.positionCounts = new HashMap<>();
         this.noPromotionCaptureCounter = 0;
+        if (playerToMove.getColour() != Colour.black) {
+            swapPlayers();
+        }
     }
 
-    public void execute(Move move) {
-        Iterator<Move> moveIterator = move.iterator();
-        while (moveIterator.hasNext()) {
-            Move subMove = moveIterator.next();
-            subMove.execute(board);
-            support.firePropertyChange("boardChange", null, null);
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                break;
+    public void write(String fileName) throws IOException {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(fileName))) {
+         
+            for (int round = 0; round < previousMoves.size() / 2; round++) {
+                bw.write((round + 1) + ". " + previousMoves.get(round * 2) + " " + previousMoves.get(round * 2 + 1));
+                bw.newLine();
+            }
+            if (previousMoves.size() % 2 == 1) {
+                bw.write((previousMoves.size() / 2 + 1) + ". " + previousMoves.getLast());
             }
         }
+    }
+
+    public void swapPlayers() {
+        Player tempPlayer = playerToMove;
+        playerToMove = playerNotToMove;
+        playerNotToMove = tempPlayer;
+    }
+
+    public void finalizeMoveState(Move move) {
         if (move.isMandatory() || move.isPromotion(board)) {
             noPromotionCaptureCounter = 0;
             positionCounts.clear();
@@ -118,23 +110,8 @@ public class Game {
         }
         String fen = board.getFen(playerToMove);
         positionCounts.merge(fen, 1, Integer::sum);
-        moves.add(move);
-        playerToMove = Colour.opposite(playerToMove);
-        board.invert();
+        previousMoves.add(move);
         support.firePropertyChange("boardChange", null, null);
-    }
-
-    public void write(String fileName) throws IOException {
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(fileName))) {
-         
-            for (int round = 0; round < moves.size() / 2; round++) {
-                bw.write((round + 1) + ". " + moves.get(round * 2) + " " + moves.get(round * 2 + 1));
-                bw.newLine();
-            }
-            if (moves.size() % 2 == 1) {
-                bw.write((moves.size() / 2 + 1) + ". " + moves.getLast());
-            }
-        }
     }
     
     
@@ -168,8 +145,8 @@ public class Game {
                     } catch (IllegalArgumentException e) {
                         throw new FileFormatException("Cannot parse file. A move is not correct!", e);
                     }
-                    if (validMovesOfPlayerToMove().stream().anyMatch(move -> move.equals(blackMove))) { 
-                        execute(blackMove);
+                    if (playerToMove.validMoves(this).stream().anyMatch(move -> move.equals(blackMove))) { 
+                        playerToMove.handleTurn(this, blackMove);
                     } else {
                         throw new InvalidMoveException("There is an invalid move in the file according to the rules!");
                     }
@@ -184,8 +161,8 @@ public class Game {
                     } catch (IllegalArgumentException e) {
                         throw new FileFormatException("Cannot parse file. A move is not correct!", e);
                     }
-                    if (validMovesOfPlayerToMove().stream().anyMatch(move -> move.equals(whiteMove))) {
-                        execute(whiteMove);
+                    if (playerToMove.validMoves(this).stream().anyMatch(move -> move.equals(whiteMove))) {
+                        playerToMove.handleTurn(this, whiteMove);
                     } else {
                         throw new InvalidMoveException("There is an invalid move in the file according to the rules!");
                     }
@@ -196,8 +173,8 @@ public class Game {
 
                 } else if (roundAndMoveStrings.length == 2) {
                     Move blackMove = Move.moveFromString(roundAndMoveStrings[1], board);
-                    if (validMovesOfPlayerToMove().stream().anyMatch(move -> move.equals(blackMove))) { 
-                        execute(blackMove);
+                    if (playerToMove.validMoves(this).stream().anyMatch(move -> move.equals(blackMove))) { 
+                        playerToMove.handleTurn(this, blackMove);
                     } else {
                         throw new InvalidMoveException("There is an invalid move in the file according to the rules");
                     }
@@ -215,5 +192,40 @@ public class Game {
 
     public void addPropertyChangeListener(PropertyChangeListener pcl) {
         support.addPropertyChangeListener(pcl);
+    }
+
+    public void executeCapture(Capture capture) {
+        if (!capture.isPromotion(board)) {
+            board.setPiece(board.getPiece(capture.getFrom()), capture.getTo());
+        } else {
+            Colour colour = board.getPiece(capture.getFrom()).getColour();
+            board.setPiece(new King(colour), capture.getTo());
+        }
+        board.setPiece(null, capture.getFrom());
+        Point capturedPoint = new Point((capture.getFrom().x + capture.getTo().x) / 2, (capture.getFrom().y + capture.getTo().y) / 2);
+        board.setPiece(null, capturedPoint);
+    }
+
+    public void executeCaptureSequence(CaptureSequence captureSequence) {
+        for (Capture capture : captureSequence.getCaptureSequence()) {
+            capture.execute(this);
+            support.firePropertyChange("boardChange", null, null);
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                break;
+            }
+        }
+    }
+
+    public void executeNormalMove(NormalMove normalMove) {
+        if (!normalMove.isPromotion(board)) {
+            board.setPiece(board.getPiece(normalMove.getFrom()), normalMove.getTo());
+        } else {
+            Colour colour = board.getPiece(normalMove.getFrom()).getColour();
+            board.setPiece(new King(colour), normalMove.getTo());
+        }
+        board.setPiece(null, normalMove.getFrom());
     }
 }

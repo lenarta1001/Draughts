@@ -1,6 +1,9 @@
 package com.checkers.model.board;
 
+import com.checkers.model.colour.Colour;
 import com.checkers.model.piece.*;
+import com.checkers.model.player.Player;
+
 import java.awt.Point;
 
 public class Board {
@@ -32,17 +35,15 @@ public class Board {
         return isInverted;
     }
 
-    public static Board initBoard() {
-        Board initBoard = new Board();
+    public void initBoard() {
         for (int i = 1; i <= 32; i++) {
             Point p = pointFromSquareNumber(i);
             if (p.y <= 2) {
-                initBoard.setPiece(new Checker(Colour.white), p);
+                setPiece(new Checker(Colour.white), p);
             } else if (p.y >= 5) {
-                initBoard.setPiece(new Checker(Colour.black), p);
+                setPiece(new Checker(Colour.black), p);
             }
         }
-        return initBoard;
     }
     
     public static int squareNumberFromPoint(Point p) throws IllegalArgumentException {
@@ -86,9 +87,9 @@ public class Board {
         isInverted = !isInverted;
     }
 
-    public String getFen(Colour playerToMove) {
+    public String getFen(Player playerToMove) {
         StringBuilder fen = new StringBuilder();
-        if (playerToMove == Colour.black) {
+        if (playerToMove.getColour() == Colour.black) {
             fen.append("B");
         } else {
             fen.append("W");

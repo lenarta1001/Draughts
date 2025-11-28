@@ -3,7 +3,8 @@ package com.checkers.model.move;
 import java.awt.Point;
 
 import com.checkers.model.board.*;
-import com.checkers.model.piece.*;
+import com.checkers.model.game.Game;
+import com.checkers.view.GamePanel;
 
 public class Capture extends Move {
     public Capture(Point from, Point to, boolean onInvertedBoard) {
@@ -20,16 +21,8 @@ public class Capture extends Move {
         return true;
     }
     
-    public void execute(Board board) {
-        if (!isPromotion(board)) {
-            board.setPiece(board.getPiece(getFrom()), getTo());
-        } else {
-            Colour colour = board.getPiece(getFrom()).getColour();
-            board.setPiece(new King(colour), getTo());
-        }
-        board.setPiece(null, getFrom());
-        Point capturedPoint = new Point((getFrom().x + getTo().x) / 2, (getFrom().y + getTo().y) / 2);
-        board.setPiece(null, capturedPoint);
+    public void execute(Game game) {
+        game.executeCapture(this);
     }
 
     public boolean equals(Object o) {
@@ -44,4 +37,9 @@ public class Capture extends Move {
         Capture other = (Capture) o;
         return from.equals(other.from) && to.equals(other.to) && onInvertedBoard == other.onInvertedBoard;
     }
+
+    public void draw(GamePanel gp) {
+        gp.drawCapture(this);
+    }
+    
 }
