@@ -18,17 +18,8 @@ public class testMove {
 
     @Test
     public void testNormalMoveToString() {
-        Move move = new NormalMove(Board.pointFromSquareNumber(11), Board.pointFromSquareNumber(14), false);
+        Move move = new NormalMove(Board.pointFromSquareNumber(11), Board.pointFromSquareNumber(14));
         assertEquals("11-14", move.toString());
-    }
-
-    @Test
-    public void testNormalMoveToStringOnInvertedTable() {
-        Board board = new Board();
-        board.initBoard();
-        board.invert();
-        Move move = new NormalMove(Board.pointFromSquareNumber(11), Board.pointFromSquareNumber(14), true);
-        assertEquals("22-19", move.toString());
     }
 
     @Test
@@ -36,18 +27,8 @@ public class testMove {
         Board board = new Board();
         board.initBoard();
         board.setPiece(board.getPiece(Board.pointFromSquareNumber(22)), Board.pointFromSquareNumber(14));
-        Move move = new Capture(Board.pointFromSquareNumber(11), Board.pointFromSquareNumber(18), false);
+        Move move = new Capture(Board.pointFromSquareNumber(11), Board.pointFromSquareNumber(18));
         assertEquals("11x18", move.toString());
-    }
-
-    @Test
-    public void testCaptureToStringOnInvertedTable() {
-        Board board = new Board();
-        board.initBoard();
-        board.setPiece(board.getPiece(Board.pointFromSquareNumber(22)), Board.pointFromSquareNumber(14));
-        board.invert();
-        Move move = new Capture(Board.pointFromSquareNumber(11), Board.pointFromSquareNumber(18), true);
-        assertEquals("22x15", move.toString());
     }
 
     @Test
@@ -57,63 +38,42 @@ public class testMove {
         board.setPiece(new Checker(Colour.white), Board.pointFromSquareNumber(14));
         board.setPiece(null, Board.pointFromSquareNumber(27));
         List<Capture> captures = new ArrayList<>();
-        captures.add(new Capture(Board.pointFromSquareNumber(11), Board.pointFromSquareNumber(18), false));
-        captures.add(new Capture(Board.pointFromSquareNumber(18), Board.pointFromSquareNumber(27), false));
+        captures.add(new Capture(Board.pointFromSquareNumber(11), Board.pointFromSquareNumber(18)));
+        captures.add(new Capture(Board.pointFromSquareNumber(18), Board.pointFromSquareNumber(27)));
 
-        Move move = new CaptureSequence(captures, false);
+        Move move = new CaptureSequence(captures);
         assertEquals("11x18x27", move.toString());
     }
 
     @Test
-    public void testCaptureSequenceToStringOnInvertedTable() {
-        Board board = new Board();
-        board.initBoard();
-        board.setPiece(new Checker(Colour.white), Board.pointFromSquareNumber(14));
-        board.setPiece(null, Board.pointFromSquareNumber(27));
-        board.invert();
-        List<Capture> captures = new ArrayList<>();
-        captures.add(new Capture(Board.pointFromSquareNumber(11), Board.pointFromSquareNumber(18), true));
-        captures.add(new Capture(Board.pointFromSquareNumber(18), Board.pointFromSquareNumber(27), true));
-
-        Move move = new CaptureSequence(captures, true);
-        assertEquals("22x15x6", move.toString());
-    }
-
-    @Test
     public void testGetFrom() {
-        Move move = new NormalMove(Board.pointFromSquareNumber(11), Board.pointFromSquareNumber(14), false);
+        Move move = new NormalMove(Board.pointFromSquareNumber(11), Board.pointFromSquareNumber(14));
         assertEquals(Board.pointFromSquareNumber(11), move.getFrom());
     } 
 
     @Test
     public void testGetTo() {
-        Move move = new NormalMove(Board.pointFromSquareNumber(11), Board.pointFromSquareNumber(14), false);
+        Move move = new NormalMove(Board.pointFromSquareNumber(11), Board.pointFromSquareNumber(14));
         assertEquals(Board.pointFromSquareNumber(14), move.getTo());
-    }
-
-    @Test
-    public void testGetOnInvertedBoard() {
-        Move move = new NormalMove(Board.pointFromSquareNumber(11), Board.pointFromSquareNumber(14), false);
-        assertFalse(move.getOnInvertedBoard());
     }
 
     @Test
     public void testIsPromotion() {
         Board board = new Board();
         board.setPiece(new Checker(Colour.black), Board.pointFromSquareNumber(26));
-        Move move = new NormalMove(Board.pointFromSquareNumber(26), Board.pointFromSquareNumber(29), false);
+        Move move = new NormalMove(Board.pointFromSquareNumber(26), Board.pointFromSquareNumber(29));
         assertTrue(move.isPromotion(board));
     }
 
     @Test
     public void testIsManadatoryTrue() {
-        Move move = new Capture(Board.pointFromSquareNumber(11), Board.pointFromSquareNumber(18), true);
+        Move move = new Capture(Board.pointFromSquareNumber(11), Board.pointFromSquareNumber(18));
         assertTrue(move.isMandatory());
     }
 
     @Test
     public void testIsManadatoryFalse() {
-        Move move = new NormalMove(Board.pointFromSquareNumber(11), Board.pointFromSquareNumber(14), true);
+        Move move = new NormalMove(Board.pointFromSquareNumber(11), Board.pointFromSquareNumber(14));
         assertFalse(move.isMandatory());
     }
 
@@ -123,13 +83,13 @@ public class testMove {
         game.initGame();
         Board board = game.getBoard();
 
-        Move move = new NormalMove(Board.pointFromSquareNumber(11), Board.pointFromSquareNumber(14), true);
+        Move move = new NormalMove(Board.pointFromSquareNumber(11), Board.pointFromSquareNumber(14));
         move.execute(game);
         Piece pieceAtFromPoint = board.getPiece(move.getFrom());
         Piece pieceAtToPoint = board.getPiece(move.getTo());
 
         assertNull(pieceAtFromPoint);
-        assertEquals("", pieceAtToPoint.toString());
+        assertTrue(pieceAtToPoint instanceof Checker);
     }
     
     @Test
@@ -139,7 +99,7 @@ public class testMove {
         Board board = game.getBoard();
         board.setPiece(new Checker(Colour.black), Board.pointFromSquareNumber(26));
 
-        Move move = new NormalMove(Board.pointFromSquareNumber(26), Board.pointFromSquareNumber(29), false); 
+        Move move = new NormalMove(Board.pointFromSquareNumber(26), Board.pointFromSquareNumber(29)); 
         move.execute(game);
         Piece pieceAtFromPoint = board.getPiece(move.getFrom());
         Piece pieceAtToPoint = board.getPiece(move.getTo());
@@ -157,7 +117,7 @@ public class testMove {
         board.setPiece(new Checker(Colour.black), Board.pointFromSquareNumber(11));
         board.setPiece(new Checker(Colour.white), Board.pointFromSquareNumber(18));
 
-        Move move = new Capture(Board.pointFromSquareNumber(11), Board.pointFromSquareNumber(18), false);
+        Move move = new Capture(Board.pointFromSquareNumber(11), Board.pointFromSquareNumber(18));
         move.execute(game);
         Piece pieceAtFromPoint = board.getPiece(move.getFrom());
         Piece pieceAtJumpedPoint = board.getPiece(new Point((move.getFrom().x + move.getTo().x) / 2, (move.getFrom().y + move.getTo().y) / 2));
@@ -177,7 +137,7 @@ public class testMove {
         board.setPiece(new Checker(Colour.black), Board.pointFromSquareNumber(22));
         board.setPiece(new Checker(Colour.white), Board.pointFromSquareNumber(27));
 
-        Move move = new Capture(Board.pointFromSquareNumber(22), Board.pointFromSquareNumber(31), false);
+        Move move = new Capture(Board.pointFromSquareNumber(22), Board.pointFromSquareNumber(31));
         move.execute(game);
         Piece pieceAtFromPoint = board.getPiece(move.getFrom());
         Piece pieceAtJumpedPoint = board.getPiece(new Point((move.getFrom().x + move.getTo().x) / 2, (move.getFrom().y + move.getTo().y) / 2));
@@ -199,16 +159,16 @@ public class testMove {
         board.setPiece(new Checker(Colour.white), Board.pointFromSquareNumber(27));
 
         List<Capture> captures = new ArrayList<>();
-        captures.add(new Capture(Board.pointFromSquareNumber(11), Board.pointFromSquareNumber(18), false));
-        captures.add(new Capture(Board.pointFromSquareNumber(18), Board.pointFromSquareNumber(27), false));
+        captures.add(new Capture(Board.pointFromSquareNumber(11), Board.pointFromSquareNumber(18)));
+        captures.add(new Capture(Board.pointFromSquareNumber(18), Board.pointFromSquareNumber(27)));
 
-        CaptureSequence captureSequence = new CaptureSequence(captures, false);
+        CaptureSequence captureSequence = new CaptureSequence(captures);
         captureSequence.execute(game);
         Piece pieceAtFromPoint = board.getPiece(captureSequence.getFrom());
         Piece pieceAtToPoint = board.getPiece(captureSequence.getTo());
 
         assertNull(pieceAtFromPoint);
-        for (Capture capture : captureSequence.getCaptureSequence()) {
+        for (Capture capture : captureSequence.getCaptures()) {
             Piece pieceAtJumpedPoint = board.getPiece(new Point((capture.getFrom().x + capture.getTo().x) / 2, (capture.getFrom().y + capture.getTo().y) / 2));
             assertNull(pieceAtJumpedPoint);
         }
@@ -226,16 +186,16 @@ public class testMove {
         board.setPiece(new Checker(Colour.white), Board.pointFromSquareNumber(31));
 
         List<Capture> captures = new ArrayList<>();
-        captures.add(new Capture(Board.pointFromSquareNumber(15), Board.pointFromSquareNumber(22), false));
-        captures.add(new Capture(Board.pointFromSquareNumber(22), Board.pointFromSquareNumber(31), false));
+        captures.add(new Capture(Board.pointFromSquareNumber(15), Board.pointFromSquareNumber(22)));
+        captures.add(new Capture(Board.pointFromSquareNumber(22), Board.pointFromSquareNumber(31)));
 
-        CaptureSequence captureSequence = new CaptureSequence(captures, false);
+        CaptureSequence captureSequence = new CaptureSequence(captures);
         captureSequence.execute(game);
         Piece pieceAtFromPoint = board.getPiece(captureSequence.getFrom());
         Piece pieceAtToPoint = board.getPiece(captureSequence.getTo());
 
         assertNull(pieceAtFromPoint);
-        for (Capture capture : captureSequence.getCaptureSequence()) {
+        for (Capture capture : captureSequence.getCaptures()) {
             Piece pieceAtJumpedPoint = board.getPiece(new Point((capture.getFrom().x + capture.getTo().x) / 2, (capture.getFrom().y + capture.getTo().y) / 2));
             assertNull(pieceAtJumpedPoint);
         }
@@ -245,48 +205,23 @@ public class testMove {
     @Test
     public void testNormalMoveFromStringNotInverted() throws FileFormatException {
         Board board = new Board();
-        assertEquals(Move.moveFromString("11-14", board), new NormalMove(Board.pointFromSquareNumber(11), Board.pointFromSquareNumber(14), false));
-    }
-
-    @Test
-    public void testNormalMoveFromStringInverted() throws FileFormatException {
-        Board board = new Board();
-        board.invert();
-        assertEquals(Move.moveFromString("11-14", board), new NormalMove(Board.pointFromSquareNumber(22), Board.pointFromSquareNumber(19), true));
+        assertEquals(Move.moveFromString("11-14", board), new NormalMove(Board.pointFromSquareNumber(11), Board.pointFromSquareNumber(14)));
     }
 
     @Test
     public void testCaptureFromStringNotInverted() throws FileFormatException {
         Board board = new Board();
-        assertEquals(Move.moveFromString("11x18", board), new Capture(Board.pointFromSquareNumber(11), Board.pointFromSquareNumber(18), false));
-    }
-
-    @Test
-    public void testCaptureFromStringInverted() throws FileFormatException {
-        Board board = new Board();
-        board.invert();
-        assertEquals(Move.moveFromString("22x15", board), new Capture(Board.pointFromSquareNumber(11), Board.pointFromSquareNumber(18), true));
+        assertEquals(Move.moveFromString("11x18", board), new Capture(Board.pointFromSquareNumber(11), Board.pointFromSquareNumber(18)));
     }
 
     @Test
     public void testCaptureSequenceFromStringNotInverted() throws FileFormatException {
         Board board = new Board();
         List<Capture> captures = new ArrayList<>();
-        captures.add(new Capture(Board.pointFromSquareNumber(11), Board.pointFromSquareNumber(18), false));
-        captures.add(new Capture(Board.pointFromSquareNumber(18), Board.pointFromSquareNumber(27), false));
-        CaptureSequence captureSequence = new CaptureSequence(captures, false);
+        captures.add(new Capture(Board.pointFromSquareNumber(11), Board.pointFromSquareNumber(18)));
+        captures.add(new Capture(Board.pointFromSquareNumber(18), Board.pointFromSquareNumber(27)));
+        CaptureSequence captureSequence = new CaptureSequence(captures);
         assertEquals(Move.moveFromString("11x18x27", board), captureSequence);
-    }
-
-    @Test
-    public void testCaptureSequenceFromStringInverted() throws IllegalArgumentException {
-        Board board = new Board();
-        board.invert();
-        List<Capture> captures = new ArrayList<>();
-        captures.add(new Capture(Board.pointFromSquareNumber(11), Board.pointFromSquareNumber(18), true));
-        captures.add(new Capture(Board.pointFromSquareNumber(18), Board.pointFromSquareNumber(27), true));
-        CaptureSequence captureSequence = new CaptureSequence(captures, true);
-        assertEquals(Move.moveFromString("22x15x6", board), captureSequence);
     }
 
     @Test

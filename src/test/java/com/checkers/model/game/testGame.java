@@ -51,15 +51,15 @@ public class testGame {
                 movesOfBlack = board.getPiece(Board.pointFromSquareNumber(5)).validMoves(board, Board.pointFromSquareNumber(5));
                 normalMoveOfBlack = movesOfBlack.stream().filter(move -> move.getTo().equals(Board.pointFromSquareNumber(1))).findFirst().orElse(null);
                 game.getPlayerToMove().handleTurn(game, normalMoveOfBlack);
-                movesOfWhite = board.getPiece(Board.pointFromSquareNumber(5)).validMoves(board, Board.pointFromSquareNumber(5));
-                normalMoveOfWhite = movesOfWhite.stream().filter(move -> move.getTo().equals(Board.pointFromSquareNumber(1))).findFirst().orElse(null);
+                movesOfWhite = board.getPiece(Board.pointFromSquareNumber(28)).validMoves(board, Board.pointFromSquareNumber(28));
+                normalMoveOfWhite = movesOfWhite.stream().filter(move -> move.getTo().equals(Board.pointFromSquareNumber(32))).findFirst().orElse(null);
                 game.getPlayerToMove().handleTurn(game, normalMoveOfWhite);
             } else {
                 movesOfBlack = board.getPiece(Board.pointFromSquareNumber(1)).validMoves(board, Board.pointFromSquareNumber(1));
                 normalMoveOfBlack = movesOfBlack.stream().filter(move -> move.getTo().equals(Board.pointFromSquareNumber(5))).findFirst().orElse(null);
                 game.getPlayerToMove().handleTurn(game, normalMoveOfBlack);
-                movesOfWhite = board.getPiece(Board.pointFromSquareNumber(1)).validMoves(board, Board.pointFromSquareNumber(1));
-                normalMoveOfWhite = movesOfWhite.stream().filter(move -> move.getTo().equals(Board.pointFromSquareNumber(5))).findFirst().orElse(null);
+                movesOfWhite = board.getPiece(Board.pointFromSquareNumber(32)).validMoves(board, Board.pointFromSquareNumber(32));
+                normalMoveOfWhite = movesOfWhite.stream().filter(move -> move.getTo().equals(Board.pointFromSquareNumber(28))).findFirst().orElse(null);
                 game.getPlayerToMove().handleTurn(game, normalMoveOfWhite);
             }
         }
@@ -86,8 +86,8 @@ public class testGame {
             Move normalMoveOfBlack = movesOfBlack.stream().filter(move -> move.getTo().equals(nextPointBlack)).findFirst().orElse(null);
             game.getPlayerToMove().handleTurn(game, normalMoveOfBlack);
 
-            List<Move> movesOfWhite = board.getPiece(Board.invertPoint(Board.pointFromSquareNumber(squareNumbersOfWhiteCircle.get(i % whiteCircleSize)))).validMoves(board, Board.invertPoint(Board.pointFromSquareNumber(squareNumbersOfWhiteCircle.get(i % whiteCircleSize))));
-            Point nextPointWhite = Board.invertPoint(Board.pointFromSquareNumber(squareNumbersOfWhiteCircle.get((i + 1) % whiteCircleSize)));
+            List<Move> movesOfWhite = board.getPiece(Board.pointFromSquareNumber(squareNumbersOfWhiteCircle.get(i % whiteCircleSize))).validMoves(board, Board.pointFromSquareNumber(squareNumbersOfWhiteCircle.get(i % whiteCircleSize)));
+            Point nextPointWhite = Board.pointFromSquareNumber(squareNumbersOfWhiteCircle.get((i + 1) % whiteCircleSize));
             Move normalMoveOfWhite = movesOfWhite.stream().filter(move -> move.getTo().equals(nextPointWhite)).findFirst().orElse(null);
             game.getPlayerToMove().handleTurn(game, normalMoveOfWhite);
         }
@@ -105,9 +105,9 @@ public class testGame {
 
         List<Move> moves = game.getPlayerToMove().validMoves(game);
         List<Move> expectedMoves = new ArrayList<>();
-        expectedMoves.add(new NormalMove(Board.pointFromSquareNumber(9), Board.pointFromSquareNumber(13), false));
-        expectedMoves.add(new NormalMove(Board.pointFromSquareNumber(10), Board.pointFromSquareNumber(14), false));
-        expectedMoves.add(new NormalMove(Board.pointFromSquareNumber(10), Board.pointFromSquareNumber(13), false));
+        expectedMoves.add(new NormalMove(Board.pointFromSquareNumber(9), Board.pointFromSquareNumber(13)));
+        expectedMoves.add(new NormalMove(Board.pointFromSquareNumber(10), Board.pointFromSquareNumber(14)));
+        expectedMoves.add(new NormalMove(Board.pointFromSquareNumber(10), Board.pointFromSquareNumber(13)));
 
         assertEquals(expectedMoves, moves);
     }
@@ -122,8 +122,8 @@ public class testGame {
 
         List<Move> moves = game.getPlayerToMove().validMovesAt(game, Board.pointFromSquareNumber(10));
         List<Move> expectedMoves = new ArrayList<>();
-        expectedMoves.add(new NormalMove(Board.pointFromSquareNumber(10), Board.pointFromSquareNumber(14), false));
-        expectedMoves.add(new NormalMove(Board.pointFromSquareNumber(10), Board.pointFromSquareNumber(13), false));
+        expectedMoves.add(new NormalMove(Board.pointFromSquareNumber(10), Board.pointFromSquareNumber(14)));
+        expectedMoves.add(new NormalMove(Board.pointFromSquareNumber(10), Board.pointFromSquareNumber(13)));
 
         assertEquals(expectedMoves, moves);
     }
@@ -150,7 +150,7 @@ public class testGame {
         Move blackMove = game.getPlayerToMove().validMoves(game).stream().filter(move -> move.getFrom().equals(Board.pointFromSquareNumber(9)) && move.getTo().equals(Board.pointFromSquareNumber(13))).findFirst().orElse(null);
         game.getPlayerToMove().handleTurn(game, blackMove);
 
-        Move whiteMove = game.getPlayerToMove().validMoves(game).stream().filter(move -> move.getFrom().equals(Board.pointFromSquareNumber(9)) && move.getTo().equals(Board.pointFromSquareNumber(13))).findFirst().orElse(null);
+        Move whiteMove = game.getPlayerToMove().validMoves(game).stream().filter(move -> move.getFrom().equals(Board.pointFromSquareNumber(24)) && move.getTo().equals(Board.pointFromSquareNumber(20))).findFirst().orElse(null);
         game.getPlayerToMove().handleTurn(game, whiteMove);
 
         Board board = game.getBoard();

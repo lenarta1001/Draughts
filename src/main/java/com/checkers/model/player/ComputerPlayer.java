@@ -24,7 +24,6 @@ public class ComputerPlayer extends Player {
             }
             game.finalizeMoveState(move);
             game.swapPlayers();
-            game.getBoard().invert();
         }
     }
 

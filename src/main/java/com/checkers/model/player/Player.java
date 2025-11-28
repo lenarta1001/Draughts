@@ -12,7 +12,7 @@ import com.checkers.model.move.Move;
 public abstract class Player {
     private Colour colour;
 
-    public Player(Colour colour) {
+    protected Player(Colour colour) {
         this.colour = colour;
     }
 
@@ -29,8 +29,8 @@ public abstract class Player {
                 validMoves.addAll(board.getPiece(p).validMoves(board, p));
             }
         }
-        if (validMoves.stream().anyMatch(move -> move.isMandatory())) {
-            validMoves = validMoves.stream().filter(move -> move.isMandatory()).toList();
+        if (validMoves.stream().anyMatch(Move::isMandatory)) {
+            validMoves = validMoves.stream().filter(Move::isMandatory).toList();
         }
         return validMoves;
     }
@@ -42,7 +42,7 @@ public abstract class Player {
         }
         List<Move> validMoves = validMoves(game); 
         List<Move> potentialMoves = board.getPiece(point).validMoves(board, point);
-        return potentialMoves.stream().filter(move -> validMoves.contains(move)).toList();
+        return potentialMoves.stream().filter(validMoves::contains).toList();
     }
 
     public abstract void handleTurn(Game game, Move move);

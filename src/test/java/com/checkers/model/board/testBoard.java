@@ -78,50 +78,10 @@ public class testBoard {
     }
 
     @Test
-    public void testIsInvertedBoard() {
-        Board board = new Board();
-        board.initBoard();
-        board.invert();
-        assertTrue(board.isInvertedBoard());
-    }
-
-    @Test
-    public void testInvertBoard() {
-        Board board = new Board();
-        board.initBoard();
-        board.invert();
-        for (int i = 1; i <= 32; i++) {
-            if (i <= 12) {
-                assertFalse(board.isEmpty(Board.pointFromSquareNumber(i)));
-                assertEquals(board.getPiece(Board.pointFromSquareNumber(i)).getColour(), Colour.white);
-            } else if (i >= 21) {
-                assertFalse(board.isEmpty(Board.pointFromSquareNumber(i)));
-                assertEquals(board.getPiece(Board.pointFromSquareNumber(i)).getColour(), Colour.black);
-            } else {
-                assertTrue(board.isEmpty(Board.pointFromSquareNumber(i)));
-            }
-        }
-    }
-
-    @Test
     public void testFen() {
         Board board = new Board();
         board.initBoard();
         board.setPiece(new King(Colour.white), new Point(1, 0));
         assertEquals("B:W21,22,23,24,25,26,27,28,29K,30,31,32:B1,2,3,4,5,6,7,8,9,10,11,12", board.getFen(new HumanPlayer(Colour.black)));
-    }
-
-    @Test
-    void testFenInverted() {
-        Board board = new Board();
-        board.initBoard();
-        board.setPiece(new King(Colour.white), new Point(1, 0));
-        board.invert();
-        assertEquals("B:W21,22,23,24,25,26,27,28,29K,30,31,32:B1,2,3,4,5,6,7,8,9,10,11,12", board.getFen(new HumanPlayer(Colour.black)));
-    }
-
-    @Test
-    void testInvertPoint() {
-        assertEquals(new Point(1, 0), Board.invertPoint(new Point(6, 7)));
     }
 }

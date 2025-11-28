@@ -8,11 +8,9 @@ import java.awt.Point;
 
 public class Board {
     private Piece[][] board;
-    private boolean isInverted;
 
     public Board() {
         board = new Piece[8][8];
-        isInverted = false;
     }
 
     public boolean isEmpty(Point p) { 
@@ -30,9 +28,12 @@ public class Board {
     public Piece getPiece(Point p) {
         return board[p.y][p.x];
     }
-    
-    public boolean isInvertedBoard() {
-        return isInverted;
+
+    public static Point invertPoint(Point p) {
+        Point invertedPoint = new Point();
+        invertedPoint.x = 7 - (int)p.getX();
+        invertedPoint.y = 7 - (int)p.getY();
+        return invertedPoint;
     }
 
     public void initBoard() {
@@ -66,26 +67,7 @@ public class Board {
         p.setLocation(x, y);
         return p;
     }
-
-
-    public static Point invertPoint(Point p) {
-        Point invertedPoint = new Point();
-        invertedPoint.x = 7 - (int)p.getX();
-        invertedPoint.y = 7 - (int)p.getY();
-        return invertedPoint;
-    }
-
-    public void invert() {
-        Board invertedBoard = new Board();
-        for (int i = 1; i <= 32; i++) {
-            Point p = pointFromSquareNumber(i);
-            if (!isEmpty(p)) {
-                invertedBoard.setPiece(getPiece(p), invertPoint(p));
-            }
-        }
-        this.board = invertedBoard.board;
-        isInverted = !isInverted;
-    }
+    
 
     public String getFen(Player playerToMove) {
         StringBuilder fen = new StringBuilder();
@@ -102,9 +84,6 @@ public class Board {
 
         for (int i = 1; i <= 32; i++) {
             Point p = pointFromSquareNumber(i);
-            if (isInverted) {
-                p = Board.invertPoint(p);
-            }
 
             if (!isEmpty(p)) {
                 Piece piece = getPiece(p);

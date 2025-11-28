@@ -15,9 +15,10 @@ public class HumanPlayer extends Player {
             move.execute(game);
             game.finalizeMoveState(move);
             game.swapPlayers();
-            game.getBoard().invert();
         }
     }
 
-    public void onOpponentTurnCompleted(Game game) { }
+    public void onOpponentTurnCompleted(Game game) { 
+        // A HumanPlayer az ellenfele köre után közvetlenül nem csinál semmit
+    }
 }

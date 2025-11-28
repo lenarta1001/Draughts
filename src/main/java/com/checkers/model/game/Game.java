@@ -207,7 +207,7 @@ public class Game {
     }
 
     public void executeCaptureSequence(CaptureSequence captureSequence) {
-        for (Capture capture : captureSequence.getCaptureSequence()) {
+        for (Capture capture : captureSequence.getCaptures()) {
             capture.execute(this);
             support.firePropertyChange("boardChange", null, null);
             try {

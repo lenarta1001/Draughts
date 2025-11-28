@@ -44,14 +44,14 @@ public class King extends Piece {
             if (canCapture) {
                 List<Capture> newPreviousCaptures = new ArrayList<>();
                 newPreviousCaptures.addAll(previosCaptures);
-                newPreviousCaptures.add(new Capture(point, to, board.isInvertedBoard()));
+                newPreviousCaptures.add(new Capture(point, to));
                 captures.addAll(validCaptures(board, to, newPreviousCaptures, direction));
             }
         }
                         
         if (captures.isEmpty()) {
             if (previosCaptures.size() > 1) {
-                captures.add(new CaptureSequence(previosCaptures, board.isInvertedBoard()));
+                captures.add(new CaptureSequence(previosCaptures));
             } else if (previosCaptures.size() == 1) {
                 captures.add(previosCaptures.getFirst());
             }
@@ -74,7 +74,7 @@ public class King extends Piece {
             Point to = new Point(point.x + direction.x, point.y + direction.y);
             
             if (Board.isInsideBoard(to) && board.isEmpty(to)) {
-                moves.add(new NormalMove(point, to, board.isInvertedBoard()));
+                moves.add(new NormalMove(point, to));
             }
         }
         return moves;
@@ -88,7 +88,7 @@ public class King extends Piece {
      */
     public List<Move> validMoves(Board board, Point point) {
         List<Move> normalMoves = validNormalMoves(board, point);
-        List<Capture> captures = validCaptures(board, point, new ArrayList<Capture>(), new Point(0, 0));
+        List<Capture> captures = validCaptures(board, point, new ArrayList<>(), new Point(0, 0));
 
         List<Move> moves = new ArrayList<>();
         if (captures.isEmpty()) {
@@ -103,6 +103,7 @@ public class King extends Piece {
     /**
      * A Fen jelöléshez szükséges karakterlánccá alakító metódus
      */
+    @Override
     public String toString() {
         return "K";
     }

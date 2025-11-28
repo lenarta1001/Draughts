@@ -13,12 +13,10 @@ import com.checkers.view.GamePanel;
 public abstract class Move {
     protected Point from;
     protected Point to;
-    protected boolean onInvertedBoard;
 
-    protected Move(Point from, Point to, boolean onInvertedBoard) {
+    protected Move(Point from, Point to) {
         this.from = from;
         this.to = to;
-        this.onInvertedBoard = onInvertedBoard;
     }
 
     public Point getFrom() {
@@ -27,10 +25,6 @@ public abstract class Move {
     
     public Point getTo() {
         return to;
-    }
-    
-    public boolean getOnInvertedBoard() {
-        return onInvertedBoard;
     }
     
     public boolean isPromotion(Board board) {
@@ -61,16 +55,14 @@ public abstract class Move {
             if (fromNumber > 32 || fromNumber < 1 || toNumber > 32 || toNumber < 1) {
                 throw new IllegalArgumentException();
             }
-            boolean onInvertedBoard = board.isInvertedBoard();
-            Point from = onInvertedBoard ? Board.invertPoint(Board.pointFromSquareNumber(fromNumber)) : Board.pointFromSquareNumber(fromNumber);
-            Point to = onInvertedBoard ? Board.invertPoint(Board.pointFromSquareNumber(toNumber)) : Board.pointFromSquareNumber(toNumber);
+            Point from = Board.pointFromSquareNumber(fromNumber);
+            Point to = Board.pointFromSquareNumber(toNumber);
 
-            move = new NormalMove(from, to, onInvertedBoard);
+            move = new NormalMove(from, to);
 
         } else if (moveString.contains("x")) {
 
             String[] postions = moveString.split("x");
-            boolean onInvertedBoard = board.isInvertedBoard();
             List<Capture> captures = new ArrayList<>();
 
             for (int i = 0; i < postions.length - 1; i++) {
@@ -88,17 +80,17 @@ public abstract class Move {
                     throw new IllegalArgumentException();
                 }
 
-                Point from = onInvertedBoard ? Board.invertPoint(Board.pointFromSquareNumber(fromNumber)) : Board.pointFromSquareNumber(fromNumber);
-                Point to = onInvertedBoard ? Board.invertPoint(Board.pointFromSquareNumber(toNumber)) : Board.pointFromSquareNumber(toNumber);
+                Point from = Board.pointFromSquareNumber(fromNumber);
+                Point to = Board.pointFromSquareNumber(toNumber);
 
-                captures.add(new Capture(from, to, onInvertedBoard));
+                captures.add(new Capture(from, to));
 
             }
 
             if (captures.size() == 1) {
                 move = captures.getFirst();
             } else {
-                move = new CaptureSequence(captures, onInvertedBoard);
+                move = new CaptureSequence(captures);
             }
         } else {
             throw new IllegalArgumentException();

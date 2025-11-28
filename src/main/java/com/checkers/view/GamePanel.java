@@ -19,9 +19,8 @@ import com.checkers.model.piece.*;
 
 public class GamePanel extends JPanel implements PropertyChangeListener {
     private transient Game model;
+    private transient Graphics2D g2;
     private Point selectedPoint;
-    private Graphics2D g2;
-    private int size;
     private int squareSize;
 
     public GamePanel(Game model, GameController gameController) {
@@ -36,9 +35,7 @@ public class GamePanel extends JPanel implements PropertyChangeListener {
     
     public void setSelectedPoint(Point selectedPoint) {
         this.selectedPoint = selectedPoint;
-        javax.swing.SwingUtilities.invokeLater(() -> {
-            this.repaint();
-        });
+        javax.swing.SwingUtilities.invokeLater(this::repaint);
     }
 
     @Override
@@ -48,7 +45,7 @@ public class GamePanel extends JPanel implements PropertyChangeListener {
         
         int w = getWidth();
         int h = getHeight();
-        size = Math.min(w, h);
+        int size = Math.min(w, h);
         squareSize = size / 8; 
 
         int xOffset = (w - (squareSize * 8)) / 2;
@@ -56,6 +53,13 @@ public class GamePanel extends JPanel implements PropertyChangeListener {
 
         g2.translate(xOffset, yOffset);
 
+        drawTable();
+        drawPieces();
+
+        g2.translate(-xOffset, -yOffset);
+    }
+
+    private void drawTable() {
         for (int row = 0; row < 8; row++) {
             for (int col = 0; col < 8; col++) {
                 if ((row + col) % 2 == 1) {
@@ -67,11 +71,14 @@ public class GamePanel extends JPanel implements PropertyChangeListener {
                 }
             }
         }
+    }
 
+    private void drawPieces() {
         for (int i = 1; i <= 32; i++) {
             Point p = Board.pointFromSquareNumber(i);
+            Point displayPoint = (model.getPlayerToMove().getColour() == Colour.white) ? Board.invertPoint(p) : p;
             if (!model.getBoard().isEmpty(p)) {
-                model.getBoard().getPiece(p).draw(this, p.x, p.y);
+                model.getBoard().getPiece(p).draw(this, displayPoint.x, displayPoint.y);
             }
             
             if (selectedPoint != null) {
@@ -81,8 +88,6 @@ public class GamePanel extends JPanel implements PropertyChangeListener {
                 }
             }
         }
-
-        g2.translate(-xOffset, -yOffset);
     }
 
     public void drawChecker(Checker checker, int x, int y) {
@@ -165,16 +170,18 @@ public class GamePanel extends JPanel implements PropertyChangeListener {
     }
 
     public void drawCaptureSequence(CaptureSequence captureSequence) {
-        for (int i = 1; i < captureSequence.getCaptureSequence().size(); i++) {
-            Capture capture = captureSequence.getCaptureSequence().get(i);
+        for (int i = 1; i < captureSequence.getCaptures().size(); i++) {
+            Capture capture = captureSequence.getCaptures().get(i);
                     
             g2.setColor(new Color(40, 40, 40, 100));
             g2.setStroke(new BasicStroke(3));
 
-            int startX = capture.getFrom().x * squareSize + squareSize / 4;
-            int startY = capture.getFrom().y * squareSize + squareSize / 4;
-            int endX = capture.getFrom().x * squareSize + squareSize * 3 / 4;
-            int endY = capture.getFrom().y * squareSize + squareSize * 3 / 4;
+            Point displayFrom = (model.getPlayerToMove().getColour() == Colour.white) ? Board.invertPoint(capture.getFrom()) : capture.getFrom();
+
+            int startX = displayFrom.x * squareSize + squareSize / 4;
+            int startY = displayFrom.y * squareSize + squareSize / 4;
+            int endX = displayFrom.x * squareSize + squareSize * 3 / 4;
+            int endY = displayFrom.y * squareSize + squareSize * 3 / 4;
 
             g2.drawLine(startX, startY, endX, endY);
             g2.drawLine(startX, endY, endX, startY);
@@ -182,12 +189,13 @@ public class GamePanel extends JPanel implements PropertyChangeListener {
 
         g2.setColor(new Color(40, 40, 40, 100)); 
 
-        Capture lastCapture = captureSequence.getCaptureSequence().getLast();
+        Capture lastCapture = captureSequence.getCaptures().getLast();
+        Point displayTo = (model.getPlayerToMove().getColour() == Colour.white) ? Board.invertPoint(lastCapture.getTo()) : lastCapture.getTo();
 
         int dotSize = squareSize / 3; 
 
-        int dotX = (lastCapture.getTo().x * squareSize) + (squareSize - dotSize) / 2;
-        int dotY = (lastCapture.getTo().y * squareSize) + (squareSize - dotSize) / 2;
+        int dotX = (displayTo.x * squareSize) + (squareSize - dotSize) / 2;
+        int dotY = (displayTo.y * squareSize) + (squareSize - dotSize) / 2;
 
         g2.fillOval(dotX, dotY, dotSize, dotSize);
     }
@@ -197,8 +205,10 @@ public class GamePanel extends JPanel implements PropertyChangeListener {
 
         int dotSize = squareSize / 3; 
 
-        int dotX = (normalMove.getTo().x * squareSize) + (squareSize - dotSize) / 2;
-        int dotY = (normalMove.getTo().y * squareSize) + (squareSize - dotSize) / 2;
+        Point displayTo = (model.getPlayerToMove().getColour() == Colour.white) ? Board.invertPoint(normalMove.getTo()) : normalMove.getTo();
+
+        int dotX = (displayTo.x * squareSize) + (squareSize - dotSize) / 2;
+        int dotY = (displayTo.y * squareSize) + (squareSize - dotSize) / 2;
 
         g2.fillOval(dotX, dotY, dotSize, dotSize);
     }
@@ -208,8 +218,10 @@ public class GamePanel extends JPanel implements PropertyChangeListener {
 
         int dotSize = squareSize / 3; 
 
-        int dotX = (capture.getTo().x * squareSize) + (squareSize - dotSize) / 2;
-        int dotY = (capture.getTo().y * squareSize) + (squareSize - dotSize) / 2;
+        Point displayTo = (model.getPlayerToMove().getColour() == Colour.white) ? Board.invertPoint(capture.getTo()) : capture.getTo();
+
+        int dotX = (displayTo.x * squareSize) + (squareSize - dotSize) / 2;
+        int dotY = (displayTo.y * squareSize) + (squareSize - dotSize) / 2;
 
         g2.fillOval(dotX, dotY, dotSize, dotSize);
     }

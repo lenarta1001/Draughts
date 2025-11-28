@@ -14,13 +14,15 @@ import com.checkers.model.colour.Colour;
  */
 public abstract class Piece {
     private Colour colour;
+    protected Point direction;
 
     /**
      * A bábu konstruktora
      * @param colour a bábu színe
      */
-    public Piece(Colour colour) {
+    protected Piece(Colour colour) {
         this.colour = colour;
+        this.direction = colour == Colour.black ? new Point(0, -1) : new Point(0, 1);
     }
 
     /**

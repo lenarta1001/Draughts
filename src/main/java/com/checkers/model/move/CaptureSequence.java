@@ -1,6 +1,5 @@
 package com.checkers.model.move;
 
-import java.awt.Point;
 import java.util.List;
 
 import com.checkers.model.board.*;
@@ -8,30 +7,30 @@ import com.checkers.model.game.Game;
 import com.checkers.view.GamePanel;
 
 public class CaptureSequence extends Capture {
-    protected List<Capture> captureSequence;
+    protected List<Capture> captures;
 
-    public CaptureSequence(List<Capture> captureSequence, boolean onInvertedBoard) {
-        super(captureSequence.getFirst().from, captureSequence.getLast().to, onInvertedBoard);
-        this.captureSequence = captureSequence;
+    public CaptureSequence(List<Capture> captures) {
+        super(captures.getFirst().from, captures.getLast().to);
+        this.captures = captures;
     }
 
-    public List<Capture> getCaptureSequence() {
-        return captureSequence;
+    public List<Capture> getCaptures() {
+        return captures;
     }
 
+    @Override
     public void execute(Game game) {
         game.executeCaptureSequence(this);
     }
 
+    @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        for (Capture capture : captureSequence) {
-            Point absoluteFrom = onInvertedBoard ? Board.invertPoint(capture.from) : capture.from;
-            sb.append(Board.squareNumberFromPoint(absoluteFrom));
+        for (Capture capture : captures) {
+            sb.append(Board.squareNumberFromPoint(capture.from));
             sb.append("x");
         }
-        Point lastAbsoluteTo = onInvertedBoard ? Board.invertPoint(captureSequence.getLast().to) : captureSequence.getLast().to;
-        sb.append(Board.squareNumberFromPoint(lastAbsoluteTo));
+        sb.append(Board.squareNumberFromPoint(captures.getLast().to));
         return sb.toString();
     }
 
@@ -45,10 +44,10 @@ public class CaptureSequence extends Capture {
         }
 
         CaptureSequence other = (CaptureSequence) o;
-        return from.equals(other.from) && to.equals(other.to) 
-            && onInvertedBoard == other.onInvertedBoard && captureSequence.equals(other.captureSequence);
+        return captures.equals(other.captures);
     }
 
+    @Override
     public void draw(GamePanel gp) {
         gp.drawCaptureSequence(this);
     }

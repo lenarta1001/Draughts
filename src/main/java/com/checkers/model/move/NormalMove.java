@@ -7,14 +7,12 @@ import com.checkers.model.game.Game;
 import com.checkers.view.GamePanel;
 
 public class NormalMove extends Move {
-    public NormalMove(Point from, Point to, boolean onInvertedBoard) {
-        super(from, to, onInvertedBoard);
+    public NormalMove(Point from, Point to) {
+        super(from, to);
     }
 
     public String toString() {
-        Point absoluteFrom = onInvertedBoard ? Board.invertPoint(from) : from;
-        Point absoluteTo = onInvertedBoard ? Board.invertPoint(to) : to;
-        return Board.squareNumberFromPoint(absoluteFrom) + "-" + Board.squareNumberFromPoint(absoluteTo);
+        return Board.squareNumberFromPoint(from) + "-" + Board.squareNumberFromPoint(to);
     }
 
     public boolean isMandatory() {
@@ -35,7 +33,7 @@ public class NormalMove extends Move {
         }
 
         NormalMove other = (NormalMove) o;
-        return from.equals(other.from) && to.equals(other.to) && onInvertedBoard == other.onInvertedBoard;
+        return from.equals(other.from) && to.equals(other.to);
     }
 
     public void draw(GamePanel gp) {

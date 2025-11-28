@@ -4,6 +4,8 @@ import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+import com.checkers.model.board.Board;
+import com.checkers.model.colour.Colour;
 import com.checkers.model.game.Game;
 import com.checkers.model.move.Move;
 import com.checkers.view.GamePanel;
@@ -42,7 +44,12 @@ public class GameController extends MouseAdapter {
         int col = mouseX / squareSize;
         int row = mouseY / squareSize;
 
-        Point p = new Point(col, row);
+        handleClickedPoint(panel, row, col);
+    }
+
+    private void handleClickedPoint(GamePanel panel, int row, int col) {
+        Point displayPoint = new Point(col, row);
+        Point p = model.getPlayerToMove().getColour() == Colour.white ? Board.invertPoint(displayPoint) : displayPoint;
         if (panel.getSelectedPoint() == null) {
             if (!model.getBoard().isEmpty(p) && model.getBoard().getPiece(p).getColour() == model.getPlayerToMove().getColour()
                 && !model.getPlayerToMove().validMovesAt(model, p).isEmpty()) {
@@ -69,6 +76,6 @@ public class GameController extends MouseAdapter {
                 model.getPlayerNotToMove().onOpponentTurnCompleted(model); 
             }).start();
             panel.setSelectedPoint(null);
-        }   
+        }  
     }
 }

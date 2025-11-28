@@ -33,7 +33,7 @@ public class Checker extends Piece {
     private List<Capture> validCaptures(Board board, Point point, List<Capture> previosCaptures) {
         List<Capture> captures = new ArrayList<>();
 
-        List<Point> diagonalDirections = List.of(new Point(1, -1), new Point(-1, -1));
+        List<Point> diagonalDirections = List.of(new Point(direction.x + 1, direction.y), new Point(direction.x - 1, direction.y));
         for (Point direction : diagonalDirections) {    
             Point jumped = new Point(point.x + direction.x, point.y + direction.y);
             Point to = new Point(point.x + 2 * direction.x, point.y + 2 * direction.y);
@@ -44,14 +44,14 @@ public class Checker extends Piece {
             if (canCapture) {
                 List<Capture> newPreviousCaptures = new ArrayList<>();
                 newPreviousCaptures.addAll(previosCaptures);
-                newPreviousCaptures.add(new Capture(point, to, board.isInvertedBoard()));
+                newPreviousCaptures.add(new Capture(point, to));
                 captures.addAll(validCaptures(board, to, newPreviousCaptures));
             }
         }
                         
         if (captures.isEmpty()) {
             if (previosCaptures.size() > 1) {
-                captures.add(new CaptureSequence(previosCaptures, board.isInvertedBoard()));
+                captures.add(new CaptureSequence(previosCaptures));
             } else if (previosCaptures.size() == 1) {
                 captures.add(previosCaptures.getFirst());
             }
@@ -69,12 +69,12 @@ public class Checker extends Piece {
     private List<Move> validNormalMoves(Board board, Point point) {
         List<Move> moves = new ArrayList<>();
 
-        List<Point> diagonalDirections = List.of(new Point(1, -1), new Point(-1, -1));
+        List<Point> diagonalDirections = List.of(new Point(direction.x + 1, direction.y), new Point(direction.x - 1, direction.y));
         for (Point direction : diagonalDirections) {    
             Point to = new Point(point.x + direction.x, point.y + direction.y);
             
             if (Board.isInsideBoard(to) && board.isEmpty(to)) {
-                moves.add(new NormalMove(point, to, board.isInvertedBoard()));
+                moves.add(new NormalMove(point, to));
             }
         }
         return moves;
@@ -88,7 +88,7 @@ public class Checker extends Piece {
      */
     public List<Move> validMoves(Board board, Point point) {
         List<Move> normalMoves = validNormalMoves(board, point);
-        List<Capture> captures = validCaptures(board, point, new ArrayList<Capture>());
+        List<Capture> captures = validCaptures(board, point, new ArrayList<>());
 
         List<Move> moves = new ArrayList<>();
         if (captures.isEmpty()) {
