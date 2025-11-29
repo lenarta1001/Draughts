@@ -12,13 +12,19 @@ public class HumanPlayer extends Player {
 
     public void handleTurn(Game game, Move move) {
         if (this == game.getPlayerToMove()) {
+            game.updateCounters(move);
             move.execute(game);
-            game.finalizeMoveState(move);
-            game.swapPlayers();
+            game.updateFen(move);
+            game.getSupport().firePropertyChange("boardChange", null, null);
         }
     }
-
+    
     public void onOpponentTurnCompleted(Game game) { 
-        // A HumanPlayer az ellenfele köre után közvetlenül nem csinál semmit
+        game.swapPlayers();
+        game.getSupport().firePropertyChange("boardChange", null, null);
+    }
+
+    public void firstTurn(Game game) {
+        // Amíg nincs klikk nem tudunk semmit sem csinálni
     }
 }

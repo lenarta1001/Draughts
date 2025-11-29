@@ -8,22 +8,21 @@ import java.util.List;
 
 import org.junit.jupiter.api.*;
 
-import com.checkers.model.FileFormatException;
 import com.checkers.model.board.Board;
 import com.checkers.model.colour.Colour;
 import com.checkers.model.game.Game;
 import com.checkers.model.piece.*;
 
-public class testMove {
+class TestMove {
 
     @Test
-    public void testNormalMoveToString() {
+    void testNormalMoveToString() {
         Move move = new NormalMove(Board.pointFromSquareNumber(11), Board.pointFromSquareNumber(14));
         assertEquals("11-14", move.toString());
     }
 
     @Test
-    public void testCaptureString() {
+    void testCaptureString() {
         Board board = new Board();
         board.initBoard();
         board.setPiece(board.getPiece(Board.pointFromSquareNumber(22)), Board.pointFromSquareNumber(14));
@@ -32,7 +31,7 @@ public class testMove {
     }
 
     @Test
-    public void testCaptureSequenceString() {
+    void testCaptureSequenceString() {
         Board board = new Board();
         board.initBoard();
         board.setPiece(new Checker(Colour.white), Board.pointFromSquareNumber(14));
@@ -46,19 +45,19 @@ public class testMove {
     }
 
     @Test
-    public void testGetFrom() {
+    void testGetFrom() {
         Move move = new NormalMove(Board.pointFromSquareNumber(11), Board.pointFromSquareNumber(14));
         assertEquals(Board.pointFromSquareNumber(11), move.getFrom());
     } 
 
     @Test
-    public void testGetTo() {
+    void testGetTo() {
         Move move = new NormalMove(Board.pointFromSquareNumber(11), Board.pointFromSquareNumber(14));
         assertEquals(Board.pointFromSquareNumber(14), move.getTo());
     }
 
     @Test
-    public void testIsPromotion() {
+    void testIsPromotion() {
         Board board = new Board();
         board.setPiece(new Checker(Colour.black), Board.pointFromSquareNumber(26));
         Move move = new NormalMove(Board.pointFromSquareNumber(26), Board.pointFromSquareNumber(29));
@@ -66,19 +65,19 @@ public class testMove {
     }
 
     @Test
-    public void testIsManadatoryTrue() {
+    void testIsManadatoryTrue() {
         Move move = new Capture(Board.pointFromSquareNumber(11), Board.pointFromSquareNumber(18));
         assertTrue(move.isMandatory());
     }
 
     @Test
-    public void testIsManadatoryFalse() {
+    void testIsManadatoryFalse() {
         Move move = new NormalMove(Board.pointFromSquareNumber(11), Board.pointFromSquareNumber(14));
         assertFalse(move.isMandatory());
     }
 
     @Test
-    public void testExecuteNormalMoveNoPromotion() {
+    void testExecuteNormalMoveNoPromotion() {
         Game game = new Game();
         game.initGame();
         Board board = game.getBoard();
@@ -93,7 +92,7 @@ public class testMove {
     }
     
     @Test
-    public void testExecuteNormalMovePromotion() {
+    void testExecuteNormalMovePromotion() {
         Game game = new Game();
         game.cleanInitGame();
         Board board = game.getBoard();
@@ -109,7 +108,7 @@ public class testMove {
     }
 
     @Test
-    public void testExecuteCaptureNoPromotion() {
+    void testExecuteCaptureNoPromotion() {
         Game game = new Game();
         game.cleanInitGame();
         Board board = game.getBoard();
@@ -129,7 +128,7 @@ public class testMove {
     }
 
     @Test
-    public void testExecuteCapturePromotion() {
+    void testExecuteCapturePromotion() {
         Game game = new Game();
         game.cleanInitGame();
         Board board = game.getBoard();
@@ -149,7 +148,7 @@ public class testMove {
     }
 
     @Test
-    public void testExecuteCaptureSequenceNoPromotion() {
+    void testExecuteCaptureSequenceNoPromotion() {
         Game game = new Game();
         game.cleanInitGame();
         Board board = game.getBoard();
@@ -176,7 +175,7 @@ public class testMove {
     }
 
     @Test
-    public void testExecuteCaptureSequencePromotion() {
+    void testExecuteCaptureSequencePromotion() {
         Game game = new Game();
         game.cleanInitGame();
         Board board = game.getBoard();
@@ -203,72 +202,63 @@ public class testMove {
     }
 
     @Test
-    public void testNormalMoveFromStringNotInverted() throws FileFormatException {
-        Board board = new Board();
-        assertEquals(Move.moveFromString("11-14", board), new NormalMove(Board.pointFromSquareNumber(11), Board.pointFromSquareNumber(14)));
+    void testNormalMoveFromStringNotInverted() {
+        assertEquals(Move.moveFromString("11-14"), new NormalMove(Board.pointFromSquareNumber(11), Board.pointFromSquareNumber(14)));
     }
 
     @Test
-    public void testCaptureFromStringNotInverted() throws FileFormatException {
-        Board board = new Board();
-        assertEquals(Move.moveFromString("11x18", board), new Capture(Board.pointFromSquareNumber(11), Board.pointFromSquareNumber(18)));
+    void testCaptureFromStringNotInverted() {
+        assertEquals(Move.moveFromString("11x18"), new Capture(Board.pointFromSquareNumber(11), Board.pointFromSquareNumber(18)));
     }
 
     @Test
-    public void testCaptureSequenceFromStringNotInverted() throws FileFormatException {
-        Board board = new Board();
+    void testCaptureSequenceFromStringNotInverted() {
         List<Capture> captures = new ArrayList<>();
         captures.add(new Capture(Board.pointFromSquareNumber(11), Board.pointFromSquareNumber(18)));
         captures.add(new Capture(Board.pointFromSquareNumber(18), Board.pointFromSquareNumber(27)));
         CaptureSequence captureSequence = new CaptureSequence(captures);
-        assertEquals(Move.moveFromString("11x18x27", board), captureSequence);
+        assertEquals(Move.moveFromString("11x18x27"), captureSequence);
     }
 
     @Test
-    public void testNormalMoveFromStringNumberOutOfRange() throws IllegalArgumentException {
-        Board board = new Board();
+    void testNormalMoveFromStringNumberOutOfRange() throws IllegalArgumentException {
         assertThrows(IllegalArgumentException.class, 
-            () -> { Move.moveFromString("33-1", board); }
+            () -> { Move.moveFromString("33-1"); }
         );
     }
 
     @Test
-    public void testNormalMoveFromStringNotNumber() throws IllegalArgumentException {
-        Board board = new Board();
+    void testNormalMoveFromStringNotNumber() throws IllegalArgumentException {
         assertThrows(IllegalArgumentException.class, 
-            () -> { Move.moveFromString("ab-1", board); }
+            () -> { Move.moveFromString("ab-1"); }
         );
     }
 
     @Test
-    public void testNormalMoveFromStringTooManySeparators() throws IllegalArgumentException {
-        Board board = new Board();
+    void testNormalMoveFromStringTooManySeparators() throws IllegalArgumentException {
         assertThrows(IllegalArgumentException.class, 
-            () -> { Move.moveFromString("3-1-2", board); }
+            () -> { Move.moveFromString("3-1-2"); }
         );
     }
 
     @Test
-    public void testCaptureFromStringNumberOutOfRange() throws IllegalArgumentException {
-        Board board = new Board();
+    void testCaptureFromStringNumberOutOfRange() throws IllegalArgumentException {
         assertThrows(IllegalArgumentException.class, 
-            () -> { Move.moveFromString("3x0", board); }
+            () -> { Move.moveFromString("3x0"); }
         );
     }
 
     @Test
-    public void testCaptureFromStringNotNumber() throws IllegalArgumentException {
-        Board board = new Board();
+    void testCaptureFromStringNotNumber() throws IllegalArgumentException {
         assertThrows(IllegalArgumentException.class, 
-            () -> { Move.moveFromString("abx1", board); }
+            () -> { Move.moveFromString("abx1"); }
         );
     }
 
     @Test
-    public void testMoveFromStringNoSeparator() throws IllegalArgumentException {
-        Board board = new Board();
+    void testMoveFromStringNoSeparator() throws IllegalArgumentException {
         assertThrows(IllegalArgumentException.class, 
-            () -> { Move.moveFromString("1122", board); }
+            () -> { Move.moveFromString("1122"); }
         );
     }
 }

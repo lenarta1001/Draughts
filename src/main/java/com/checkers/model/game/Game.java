@@ -32,11 +32,16 @@ public class Game {
 
     public Game(Player playerToMove, Player playerNotToMove) {
         this.playerToMove = playerToMove;
-        this.playerNotToMove = playerNotToMove; 
+        this.playerNotToMove = playerNotToMove;
+        initGame();
     }
 
     public Game() {
         this(new HumanPlayer(Colour.black), new HumanPlayer(Colour.white));
+    }
+
+    public void start() {
+        playerToMove.firstTurn(this);
     }
 
     public Player getPlayerToMove() {
@@ -49,6 +54,10 @@ public class Game {
 
     public Board getBoard() {
         return board;
+    }
+
+    public PropertyChangeSupport getSupport() {
+        return support;
     }
 
     public boolean isGameOver() {
@@ -101,17 +110,19 @@ public class Game {
         playerNotToMove = tempPlayer;
     }
 
-    public void finalizeMoveState(Move move) {
+    public void updateCounters(Move move) {
         if (move.isMandatory() || move.isPromotion(board)) {
             noPromotionCaptureCounter = 0;
             positionCounts.clear();
         } else {
             noPromotionCaptureCounter++;
         }
+    }
+
+    public void updateFen(Move move) {
         String fen = board.getFen(playerToMove);
         positionCounts.merge(fen, 1, Integer::sum);
         previousMoves.add(move);
-        support.firePropertyChange("boardChange", null, null);
     }
     
     
@@ -141,7 +152,7 @@ public class Game {
 
                     Move blackMove;
                     try {
-                        blackMove = Move.moveFromString(roundAndMoveStrings[1], board);
+                        blackMove = Move.moveFromString(roundAndMoveStrings[1]);
                     } catch (IllegalArgumentException e) {
                         throw new FileFormatException("Cannot parse file. A move is not correct!", e);
                     }
@@ -157,7 +168,7 @@ public class Game {
 
                     Move whiteMove;
                     try {
-                        whiteMove = Move.moveFromString(roundAndMoveStrings[2], board);
+                        whiteMove = Move.moveFromString(roundAndMoveStrings[2]);
                     } catch (IllegalArgumentException e) {
                         throw new FileFormatException("Cannot parse file. A move is not correct!", e);
                     }
@@ -172,7 +183,7 @@ public class Game {
                     }
 
                 } else if (roundAndMoveStrings.length == 2) {
-                    Move blackMove = Move.moveFromString(roundAndMoveStrings[1], board);
+                    Move blackMove = Move.moveFromString(roundAndMoveStrings[1]);
                     if (playerToMove.validMoves(this).stream().anyMatch(move -> move.equals(blackMove))) { 
                         playerToMove.handleTurn(this, blackMove);
                     } else {

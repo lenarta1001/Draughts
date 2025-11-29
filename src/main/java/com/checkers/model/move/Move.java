@@ -28,11 +28,11 @@ public abstract class Move {
     }
     
     public boolean isPromotion(Board board) {
-        return to.y == 0 && board.getPiece(from) instanceof Checker;
+        return (to.y == 0 || to.y == 7) && board.getPiece(from) instanceof Checker;
     }
 
 
-    public static Move moveFromString(String moveString, Board board) throws IllegalArgumentException {
+    public static Move moveFromString(String moveString) throws IllegalArgumentException {
         Move move;
 
         if (moveString.contains("-")) {

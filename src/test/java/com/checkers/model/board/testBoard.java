@@ -11,27 +11,28 @@ import com.checkers.model.piece.King;
 import com.checkers.model.player.HumanPlayer;
 
 
-public class testBoard {
+class TestBoard {
     
     @Test
-    public void testSquareNumberFromPointNormal() {
+    void testSquareNumberFromPointNormal() {
         assertEquals(5, Board.squareNumberFromPoint(new Point(1, 6)));
     }
 
     @Test
-    public void testSquareNumberFromPointThrow() {
-        assertThrows(IllegalArgumentException.class, 
-            () -> { Board.squareNumberFromPoint(new Point(0, 0)); }
+    void testSquareNumberFromPointThrow() {
+        Point p = new Point(0, 0);
+        assertThrows(IllegalArgumentException.class,
+            () -> Board.squareNumberFromPoint(p)
         );
     }
 
     @Test
-    public void testPointFromSquareNumberNormal() {
+    void testPointFromSquareNumberNormal() {
         assertEquals(new Point(3, 0), Board.pointFromSquareNumber(30));
     }
 
     @Test
-    public void testPointFromSquareNumberThrow() {
+    void testPointFromSquareNumberThrow() {
         assertEquals(new Point(3, 0), Board.pointFromSquareNumber(30));
     }
 
@@ -61,16 +62,16 @@ public class testBoard {
     }
     
     @Test
-    public void testInitBoard() {
+    void testInitBoard() {
         Board board = new Board();
         board.initBoard();
         for (int i = 1; i <= 32; i++) {
             if (i <= 12) {
                 assertFalse(board.isEmpty(Board.pointFromSquareNumber(i)));
-                assertEquals(board.getPiece(Board.pointFromSquareNumber(i)).getColour(), Colour.black);
+                assertEquals(Colour.black, board.getPiece(Board.pointFromSquareNumber(i)).getColour());
             } else if (i >= 21) {
                 assertFalse(board.isEmpty(Board.pointFromSquareNumber(i)));
-                assertEquals(board.getPiece(Board.pointFromSquareNumber(i)).getColour(), Colour.white);
+                assertEquals( Colour.white, board.getPiece(Board.pointFromSquareNumber(i)).getColour());
             } else {
                 assertTrue(board.isEmpty(Board.pointFromSquareNumber(i)));
             }
@@ -78,7 +79,7 @@ public class testBoard {
     }
 
     @Test
-    public void testFen() {
+    void testFen() {
         Board board = new Board();
         board.initBoard();
         board.setPiece(new King(Colour.white), new Point(1, 0));

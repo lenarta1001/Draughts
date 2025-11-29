@@ -35,7 +35,7 @@ public class GamePanel extends JPanel implements PropertyChangeListener {
     
     public void setSelectedPoint(Point selectedPoint) {
         this.selectedPoint = selectedPoint;
-        javax.swing.SwingUtilities.invokeLater(this::repaint);
+        model.getSupport().firePropertyChange("boardChange", null, null);
     }
 
     @Override
@@ -106,7 +106,7 @@ public class GamePanel extends JPanel implements PropertyChangeListener {
         g2.setColor(border);
         g2.fillOval(pieceX, pieceY, pieceSize, pieceSize);
 
-        GradientPaint gp = new GradientPaint(pieceX, pieceY, highlight, pieceX + pieceSize, pieceY + pieceSize, mainColor);
+        GradientPaint gp = new GradientPaint(pieceX, pieceY, highlight, (float)pieceX + pieceSize, (float)pieceY + pieceSize, mainColor);
         g2.setPaint(gp);
         g2.fillOval(pieceX + 2, pieceY + 2, pieceSize - 4, pieceSize - 4);
 
@@ -131,7 +131,7 @@ public class GamePanel extends JPanel implements PropertyChangeListener {
         g2.setColor(border);
         g2.fillOval(pieceX, pieceY, pieceSize, pieceSize);
 
-        GradientPaint gp = new GradientPaint(pieceX, pieceY, highlight, pieceX + pieceSize, pieceY + pieceSize, mainColor);
+        GradientPaint gp = new GradientPaint(pieceX, pieceY, highlight, (float)pieceX + pieceSize, pieceY + (float)pieceSize, mainColor);
         g2.setPaint(gp);
         g2.fillOval(pieceX + 2, pieceY + 2, pieceSize - 4, pieceSize - 4);
 
@@ -163,13 +163,12 @@ public class GamePanel extends JPanel implements PropertyChangeListener {
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         if (evt.getPropertyName().equals("boardChange")) {
-            javax.swing.SwingUtilities.invokeLater(() -> {
-                this.repaint();
-            });
+            javax.swing.SwingUtilities.invokeLater(this::repaint);
         }
     }
 
     public void drawCaptureSequence(CaptureSequence captureSequence) {
+        Stroke oldStroke = g2.getStroke();
         for (int i = 1; i < captureSequence.getCaptures().size(); i++) {
             Capture capture = captureSequence.getCaptures().get(i);
                     
@@ -186,6 +185,7 @@ public class GamePanel extends JPanel implements PropertyChangeListener {
             g2.drawLine(startX, startY, endX, endY);
             g2.drawLine(startX, endY, endX, startY);
         }
+        g2.setStroke(oldStroke);
 
         g2.setColor(new Color(40, 40, 40, 100)); 
 

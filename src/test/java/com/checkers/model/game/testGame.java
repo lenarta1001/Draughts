@@ -18,9 +18,9 @@ import com.checkers.model.colour.Colour;
 import com.checkers.model.move.*;
 import com.checkers.model.piece.*;
 
-public class testGame {
+class TestGame {
     @Test
-    public void testIsGameOver() {
+    void testIsGameOver() {
         Game game = new Game();
         game.cleanInitGame();
         Board board = game.getBoard();
@@ -34,7 +34,7 @@ public class testGame {
     }
 
     @Test
-    public void testIsDrawRepetition() {
+    void testIsDrawRepetition() {
         Game game = new Game();
         game.cleanInitGame();
         Board board = game.getBoard();
@@ -68,7 +68,7 @@ public class testGame {
     }
 
     @Test
-    public void testIsDrawNoPromotionCapture() {
+    void testIsDrawNoPromotionCapture() {
         Game game = new Game();
         game.cleanInitGame();
         Board board = game.getBoard();
@@ -96,7 +96,7 @@ public class testGame {
     }
 
     @Test
-    public void testValidMovesOfPlayerToMove() {
+    void testValidMovesOfPlayerToMove() {
         Game game = new Game();
         game.cleanInitGame();
         Board board = game.getBoard();
@@ -113,7 +113,7 @@ public class testGame {
     }
 
     @Test
-    public void testValidMovesAtPlayerToMove() {
+    void testValidMovesAtPlayerToMove() {
         Game game = new Game();
         game.cleanInitGame();
         Board board = game.getBoard();
@@ -129,7 +129,7 @@ public class testGame {
     }
 
     @Test
-    public void testSerializationOneMove() throws InvalidMoveException, IOException {
+    void testSerializationOneMove() throws InvalidMoveException, IOException {
         Game game = new Game();
         game.initGame();
         Move move = game.getPlayerToMove().validMoves(game).stream().filter(validMove -> validMove.getFrom().equals(Board.pointFromSquareNumber(9))).findFirst().orElse(null);
@@ -144,7 +144,7 @@ public class testGame {
 
     
     @Test
-    public void testSerializationWithComments() throws IOException, InvalidMoveException {
+    void testSerializationWithComments() throws IOException, InvalidMoveException {
         Game game = new Game();
         game.initGame();
         Move blackMove = game.getPlayerToMove().validMoves(game).stream().filter(move -> move.getFrom().equals(Board.pointFromSquareNumber(9)) && move.getTo().equals(Board.pointFromSquareNumber(13))).findFirst().orElse(null);
@@ -161,7 +161,7 @@ public class testGame {
     }
 
     @Test
-    public void testSerializationInvalidMove() throws IOException, InvalidMoveException {
+    void testSerializationInvalidMove() throws IOException, InvalidMoveException {
         Game game = new Game();
         Path path = Paths.get("test-data", "game_with_invalid_move.txt");
         assertThrows(InvalidMoveException.class, 
@@ -170,7 +170,7 @@ public class testGame {
     }
 
     @Test
-    public void testSerializationRoundNumberFormat() throws IOException, InvalidMoveException {
+    void testSerializationRoundNumberFormat() throws IOException, InvalidMoveException {
         Game game = new Game();
         Path path = Paths.get("test-data", "game_with_round_number_incorrect.txt");
         assertThrows(FileFormatException.class, 
@@ -179,7 +179,7 @@ public class testGame {
     }
 
     @Test
-    public void testSerializationNumberFormat() throws IOException, InvalidMoveException {
+    void testSerializationNumberFormat() throws IOException, InvalidMoveException {
         Game game = new Game();
         Path path = Paths.get("test-data", "game_with_round_number_invalid.txt");
         assertThrows(FileFormatException.class, 
@@ -188,7 +188,7 @@ public class testGame {
     }
 
     @Test
-    public void testSerializationTooManyArguments() throws IOException, InvalidMoveException {
+    void testSerializationTooManyArguments() throws IOException, InvalidMoveException {
         Game game = new Game();
         Path path = Paths.get("test-data", "game_with_too_many_arguments.txt");
         assertThrows(FileFormatException.class, 
@@ -197,7 +197,7 @@ public class testGame {
     }
 
     @Test
-    public void testSerializationLineAfterHalfLine() throws IOException, InvalidMoveException {
+    void testSerializationLineAfterHalfLine() throws IOException, InvalidMoveException {
         Game game = new Game();
         Path path = Paths.get("test-data", "game_with_extra_line.txt");
         assertThrows(FileFormatException.class, 

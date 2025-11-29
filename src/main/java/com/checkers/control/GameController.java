@@ -69,7 +69,7 @@ public class GameController extends MouseAdapter {
             new Thread(() -> {
                 model.getPlayerToMove().handleTurn(model, moveToTake);
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(500);
                 } catch (InterruptedException exception) {
                     Thread.currentThread().interrupt();
                 }

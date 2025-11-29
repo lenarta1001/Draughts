@@ -15,21 +15,32 @@ public class ComputerPlayer extends Player {
     }
 
     public void handleTurn(Game game, Move move) {
-        if (this == game.getPlayerToMove()) {
-            move.execute(game);
+        game.updateCounters(move);
+        move.execute(game);
+        game.updateFen(move);
+    }
+    
+    public void onOpponentTurnCompleted(Game game) { 
+        List<Move> moves = validMoves(game);
+        if (moves.isEmpty()) {
+            return;
+        }
+
+        Move chosen = moves.get(new Random().nextInt(moves.size()));
+        handleTurn(game, chosen);
+        game.getSupport().firePropertyChange("boardChange", null, null);
+    }
+
+    public void firstTurn(Game game) {
+        game.swapPlayers();
+        game.getSupport().firePropertyChange("boardChange", null, null);
+        new Thread(() -> {
             try {
-                Thread.sleep(500);
+                Thread.sleep(1000);
+                onOpponentTurnCompleted(game);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
-            game.finalizeMoveState(move);
-            game.swapPlayers();
-        }
+        }).start();
     }
-
-    public void onOpponentTurnCompleted(Game game) { 
-        List<Move> moves = validMoves(game);
-        Move chosen = moves.get(new Random().nextInt(moves.size()));
-        handleTurn(game, chosen);
-    }
-}
+}   

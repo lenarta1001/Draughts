@@ -47,4 +47,5 @@ public abstract class Player {
 
     public abstract void handleTurn(Game game, Move move);
     public abstract void onOpponentTurnCompleted(Game game);
+    public abstract void firstTurn(Game game);
 }
