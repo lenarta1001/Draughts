@@ -65,8 +65,23 @@ public class Game {
     }
 
     public boolean isDraw() {
-        boolean repetition = positionCounts.entrySet().stream().anyMatch(entry -> entry.getValue() >= 3);
-        return repetition || noPromotionCaptureCounter >= 30;
+        return isDrawRepetition() || isDrawNoPromotionCapture();
+    }
+
+    public void checkIsGameOverOrDraw() {
+        if (isGameOver()) {
+            getSupport().firePropertyChange("gameOver", null, null);
+        } else if (isDraw()) {
+            getSupport().firePropertyChange("draw", null, null);
+        }
+    }
+
+    public boolean isDrawRepetition() {
+        return positionCounts.entrySet().stream().anyMatch(entry -> entry.getValue() >= 3);
+    }
+
+    public boolean isDrawNoPromotionCapture() {
+        return noPromotionCaptureCounter >= 30;
     }
 
     
@@ -119,7 +134,7 @@ public class Game {
         }
     }
 
-    public void updateFen(Move move) {
+    public void updateFenAndMoves(Move move) {
         String fen = board.getFen(playerToMove);
         positionCounts.merge(fen, 1, Integer::sum);
         previousMoves.add(move);
@@ -156,8 +171,11 @@ public class Game {
                     } catch (IllegalArgumentException e) {
                         throw new FileFormatException("Cannot parse file. A move is not correct!", e);
                     }
-                    if (playerToMove.validMoves(this).stream().anyMatch(move -> move.equals(blackMove))) { 
-                        playerToMove.handleTurn(this, blackMove);
+                    if (playerToMove.validMovesAt(this, blackMove.getFrom()).stream().anyMatch(move -> move.equals(blackMove))) { 
+                        updateCounters(blackMove);
+                        blackMove.execute(this);
+                        updateFenAndMoves(blackMove);
+                        swapPlayers();
                     } else {
                         throw new InvalidMoveException("There is an invalid move in the file according to the rules!");
                     }
@@ -173,7 +191,10 @@ public class Game {
                         throw new FileFormatException("Cannot parse file. A move is not correct!", e);
                     }
                     if (playerToMove.validMoves(this).stream().anyMatch(move -> move.equals(whiteMove))) {
-                        playerToMove.handleTurn(this, whiteMove);
+                        updateCounters(whiteMove);
+                        whiteMove.execute(this);
+                        updateFenAndMoves(whiteMove);
+                        swapPlayers();
                     } else {
                         throw new InvalidMoveException("There is an invalid move in the file according to the rules!");
                     }
@@ -185,7 +206,10 @@ public class Game {
                 } else if (roundAndMoveStrings.length == 2) {
                     Move blackMove = Move.moveFromString(roundAndMoveStrings[1]);
                     if (playerToMove.validMoves(this).stream().anyMatch(move -> move.equals(blackMove))) { 
-                        playerToMove.handleTurn(this, blackMove);
+                        updateCounters(blackMove);
+                        blackMove.execute(this);
+                        updateFenAndMoves(blackMove);
+                        swapPlayers();
                     } else {
                         throw new InvalidMoveException("There is an invalid move in the file according to the rules");
                     }
@@ -198,7 +222,8 @@ public class Game {
             if (sc.hasNextLine()) {
                 throw new FileFormatException("Cannot parse file! There are more lines");
             }
-        }    
+        }
+        support.firePropertyChange("boardChange", null, null); 
     }
 
     public void addPropertyChangeListener(PropertyChangeListener pcl) {

@@ -5,6 +5,7 @@ import java.awt.geom.Path2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import com.checkers.control.GameController;
@@ -35,7 +36,7 @@ public class GamePanel extends JPanel implements PropertyChangeListener {
     
     public void setSelectedPoint(Point selectedPoint) {
         this.selectedPoint = selectedPoint;
-        model.getSupport().firePropertyChange("boardChange", null, null);
+        javax.swing.SwingUtilities.invokeLater(this::repaint);
     }
 
     @Override
@@ -164,6 +165,16 @@ public class GamePanel extends JPanel implements PropertyChangeListener {
     public void propertyChange(PropertyChangeEvent evt) {
         if (evt.getPropertyName().equals("boardChange")) {
             javax.swing.SwingUtilities.invokeLater(this::repaint);
+        } else if (evt.getPropertyName().equals("gameOver")) {
+            JOptionPane.showMessageDialog(this, "The game is over. The " + model.getPlayerNotToMove().getColour() + " player won.");
+        } else if (evt.getPropertyName().equals("draw")) {
+            StringBuilder message = new StringBuilder("It is a draw because");
+            if (model.isDrawRepetition()) {
+                message.append(" of repetition.");
+            } else if (model.isDrawNoPromotionCapture()) {
+                message.append(" there was no for 30 turns.");
+            }
+            JOptionPane.showMessageDialog(this, message);
         }
     }
 

@@ -25,31 +25,31 @@ public class NewGameDialog extends JDialog {
         JLabel colorLabel = new JLabel("Your Colour:");
         String[] colors = {"Black (Starts)", "White"};
         colorCombo = new JComboBox<>(colors);
+        colorCombo.setEnabled(false);
 
         JLabel opponentLabel = new JLabel("Opponent:");
         String[] opponents = {"Player vs Player", "Player vs Computer"};
         opponentCombo = new JComboBox<>(opponents);
-        
+  
         importCheck = new JCheckBox("Import game from file");
         
         filePathField = new JTextField(20);
         filePathField.setEditable(false);
         filePathField.setEnabled(false);
-
+        
         JButton browseBtn = new JButton("Browse...");
         browseBtn.setEnabled(false);
         browseBtn.addActionListener(e -> chooseFile());
-
-  
+        
+        
         importCheck.addActionListener(e -> {
-            boolean isImport = importCheck.isSelected();
-            colorCombo.setEnabled(!isImport);
-            opponentCombo.setEnabled(!isImport);
-            
-            filePathField.setEnabled(isImport);
-            browseBtn.setEnabled(isImport);
+            browseBtn.setEnabled(importCheck.isSelected());
         });
-
+        
+        opponentCombo.addActionListener(e -> {
+            colorCombo.setEnabled(isVsComputer());
+        });
+        
         JButton startBtn = new JButton("Start Game");
         startBtn.addActionListener(e -> {
             if (validateInput()) {
@@ -116,11 +116,9 @@ public class NewGameDialog extends JDialog {
     }
 
     private boolean validateInput() {
-        if (importCheck.isSelected()) {
-            if (importedFile == null || !importedFile.exists()) {
-                JOptionPane.showMessageDialog(this, "Please select a valid file to import.", "Error", JOptionPane.ERROR_MESSAGE);
-                return false;
-            }
+        if (importCheck.isSelected() && (importedFile == null || !importedFile.exists())) {
+            JOptionPane.showMessageDialog(this, "Please select a valid file to import.", "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
         }
         return true;
     }

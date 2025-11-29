@@ -11,20 +11,27 @@ public class HumanPlayer extends Player {
     }
 
     public void handleTurn(Game game, Move move) {
-        if (this == game.getPlayerToMove()) {
-            game.updateCounters(move);
-            move.execute(game);
-            game.updateFen(move);
-            game.getSupport().firePropertyChange("boardChange", null, null);
-        }
+        game.updateCounters(move);
+        move.execute(game);
+        game.updateFenAndMoves(move);
+        game.getSupport().firePropertyChange("boardChange", null, null);
     }
     
     public void onOpponentTurnCompleted(Game game) { 
         game.swapPlayers();
         game.getSupport().firePropertyChange("boardChange", null, null);
+        game.checkIsGameOverOrDraw();
     }
 
     public void firstTurn(Game game) {
-        // Amíg nincs klikk nem tudunk semmit sem csinálni
+        game.getSupport().firePropertyChange("boardChange", null, null);
+        new Thread(() -> {
+            try {
+                Thread.sleep(1000);
+                game.checkIsGameOverOrDraw();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }).start();
     }
 }

@@ -7,14 +7,14 @@ import com.checkers.model.player.Player;
 import java.awt.Point;
 
 public class Board {
-    private Piece[][] board;
+    private Piece[][] squares;
 
     public Board() {
-        board = new Piece[8][8];
+        squares = new Piece[8][8];
     }
 
     public boolean isEmpty(Point p) { 
-        return board[p.y][p.x] == null;
+        return squares[p.y][p.x] == null;
     }
 
     public static boolean isInsideBoard(Point p) {
@@ -22,11 +22,11 @@ public class Board {
     }
 
     public void setPiece(Piece piece, Point p) {
-        board[p.y][p.x] = piece;
+        squares[p.y][p.x] = piece;
     }
 
     public Piece getPiece(Point p) {
-        return board[p.y][p.x];
+        return squares[p.y][p.x];
     }
 
     public static Point invertPoint(Point p) {
@@ -77,10 +77,8 @@ public class Board {
             fen.append("W");
         }
 
-        StringBuilder blacks = new StringBuilder();
-        StringBuilder whites = new StringBuilder();
-        blacks.append(":B");
-        whites.append(":W");
+        StringBuilder blacks = new StringBuilder(":B");
+        StringBuilder whites = new StringBuilder(":W");
 
         for (int i = 1; i <= 32; i++) {
             Point p = pointFromSquareNumber(i);

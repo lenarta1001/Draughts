@@ -82,7 +82,7 @@ public class MainFrame extends JFrame {
 
         if (dialog.isConfirmed()) {
             if (dialog.isImport()) {
-                handleImport(dialog.getSelectedFile());
+                handleImport(dialog.getSelectedFile(), dialog.isBlack(), dialog.isVsComputer());
             } else {
                 initNewGame(dialog.isBlack(), dialog.isVsComputer());
             }
@@ -109,14 +109,28 @@ public class MainFrame extends JFrame {
         startGame(new Game(p1, p2));
     }
 
-    private void handleImport(File file) {
+    private void handleImport(File file, boolean isHumanBlack, boolean isVsComputer) {
         if (file == null || !file.exists()) {
-             JOptionPane.showMessageDialog(this, "Invalid file selected.", "Error", JOptionPane.ERROR_MESSAGE);
-             return;
+            JOptionPane.showMessageDialog(this, "Invalid file selected.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
 
+        Player p1;
+        Player p2;
+        if (isVsComputer) {
+            if (isHumanBlack) {
+                p1 = new HumanPlayer(Colour.black);
+                p2 = new ComputerPlayer(Colour.white);
+            } else {
+                p1 = new ComputerPlayer(Colour.black);
+                p2 = new HumanPlayer(Colour.white);
+            }
+        } else {
+            p1 = new HumanPlayer(Colour.black);
+            p2 = new HumanPlayer(Colour.white);
+        }
         try {
-            Game importedGame = new Game(new HumanPlayer(Colour.black), new HumanPlayer(Colour.white));
+            Game importedGame = new Game(p1, p2);
             importedGame.read(file.getAbsolutePath());
             startGame(importedGame);
         } catch (Exception e) {

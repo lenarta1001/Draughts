@@ -15,20 +15,23 @@ public class ComputerPlayer extends Player {
     }
 
     public void handleTurn(Game game, Move move) {
+        game.swapPlayers(); // Az ütéssorozat megjelenítésénél ne forduljon meg a tábla
         game.updateCounters(move);
         move.execute(game);
-        game.updateFen(move);
+        game.updateFenAndMoves(move);
     }
     
-    public void onOpponentTurnCompleted(Game game) { 
+    public void onOpponentTurnCompleted(Game game) {
+        game.swapPlayers();
+        game.checkIsGameOverOrDraw();
         List<Move> moves = validMoves(game);
         if (moves.isEmpty()) {
             return;
         }
-
         Move chosen = moves.get(new Random().nextInt(moves.size()));
         handleTurn(game, chosen);
         game.getSupport().firePropertyChange("boardChange", null, null);
+        game.checkIsGameOverOrDraw();
     }
 
     public void firstTurn(Game game) {
