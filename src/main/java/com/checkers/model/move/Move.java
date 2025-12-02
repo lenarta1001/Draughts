@@ -15,15 +15,17 @@ import com.checkers.view.GamePanel;
 public abstract class Move {
     protected Point from;
     protected Point to;
+    protected boolean promotion;
 
     /**
      * A lépés konstruktora
      * @param from a kezdő pozíció
      * @param to a végpozíció
      */
-    protected Move(Point from, Point to) {
+    protected Move(Point from, Point to, Board board) {
         this.from = from;
         this.to = to;
+        this.promotion = (to.y == 0 || to.y == 7) && board.getPiece(from) instanceof Checker;
     }
 
     /**
@@ -45,8 +47,8 @@ public abstract class Move {
      * @param board a tábla 
      * @return a lépés dámává való átalakulás-e
      */
-    public boolean isPromotion(Board board) {
-        return (to.y == 0 || to.y == 7) && board.getPiece(from) instanceof Checker;
+    public boolean isPromotion() {
+        return promotion;
     }
 
     /**
@@ -55,7 +57,7 @@ public abstract class Move {
      * @return a karakterlánchoz tartozó lépés
      * @throws IllegalArgumentException ha a karakterlánc érvénytelen
      */
-    public static Move moveFromString(String moveString) throws IllegalArgumentException {
+    public static Move moveFromString(String moveString, Board board) throws IllegalArgumentException {
         Move move;
 
         if (moveString.contains("-")) {
@@ -81,7 +83,7 @@ public abstract class Move {
             Point from = Board.pointFromSquareNumber(fromNumber);
             Point to = Board.pointFromSquareNumber(toNumber);
 
-            move = new NormalMove(from, to);
+            move = new NormalMove(from, to, board);
 
         } else if (moveString.contains("x")) {
 
@@ -106,14 +108,14 @@ public abstract class Move {
                 Point from = Board.pointFromSquareNumber(fromNumber);
                 Point to = Board.pointFromSquareNumber(toNumber);
 
-                captures.add(new Capture(from, to));
+                captures.add(new Capture(from, to, board));
 
             }
 
             if (captures.size() == 1) {
                 move = captures.getFirst();
             } else {
-                move = new CaptureSequence(captures);
+                move = new CaptureSequence(captures, board);
             }
         } else {
             throw new IllegalArgumentException();
@@ -124,9 +126,15 @@ public abstract class Move {
     
     /**
      * Elvégzi a normál lépést a játék tábláján
-     * @param game a játék aminek a tábláján a normál lépést végezzük
+     * @param game a játék aminek a tábláján a lépést végezzük
      */
     public abstract void execute(Game game);
+
+    /**
+     * Elvégzi a lépést a táblán, itt nincs késleltetés ütéssorozat esetén
+     * @param board a tábla, amin a lépést végezzük
+     */
+    public abstract void execute(Board board);
 
     /**
      * @return a lépést kötelező-e elvégezni

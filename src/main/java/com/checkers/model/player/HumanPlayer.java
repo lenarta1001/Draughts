@@ -23,9 +23,8 @@ public class HumanPlayer extends Player {
      * @param move a lépés amit az ember játékos választott
      */
     public void handleTurn(Game game, Move move) {
-        game.updateCounters(move);
         move.execute(game);
-        game.updateFenAndMoves(move);
+        game.updateGameState(move);
         game.getSupport().firePropertyChange("boardChange", null, null);
     }
     
@@ -33,25 +32,26 @@ public class HumanPlayer extends Player {
      * Az ember játékos ellenfele lépése utáni teendőket végzi el
      * @param game a játék, amiben az ember játékos játszik
      */
-    public void onOpponentTurnCompleted(Game game) { 
+    public void onOpponentTurnCompleted(Game game) {
         game.swapPlayers();
-        game.getSupport().firePropertyChange("boardChange", null, null);
-        game.checkIsGameOverOrDraw();
+        if (!game.checkIsGameOverOrDraw()) {
+             game.setInverted(!game.getInverted());
+             game.getSupport().firePropertyChange("boardChange", null, null);
+        }
     }
 
     /**
-     * Az ember játékos első lépése előtti teendőket végzi el
-     * @param game a játék, amiben az ember játékos játszik
+     * A kezdő állapotban invertált legyen-e a játék táblája
      */
-    public void firstTurn(Game game) {
-        game.getSupport().firePropertyChange("boardChange", null, null);
-        new Thread(() -> {
-            try {
-                Thread.sleep(1000);
-                game.checkIsGameOverOrDraw();
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-        }).start();
+    public boolean getStartInverted() {
+        return false;
     }
+
+    /**
+     * A játékos első lépése előtti teendőket végzi el
+     * @param game a játék, amiben a játékos játszik
+     */
+    public void beforeFirstTurn(Game game) {
+        // Első lépés előtt nem tudunk semmit csinálni csak várni a klikkelésig
+    }    
 }

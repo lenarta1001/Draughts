@@ -27,10 +27,9 @@ public class ComputerPlayer extends Player {
      * @param move a lépés amit a bot játékos választott
      */
     public void handleTurn(Game game, Move move) {
-        game.swapPlayers(); // Az ütéssorozat megjelenítésénél ne forduljon meg a tábla
-        game.updateCounters(move);
         move.execute(game);
-        game.updateFenAndMoves(move);
+        game.updateGameState(move);
+        game.getSupport().firePropertyChange("boardChange", null, null);
     }
     
     /**
@@ -39,27 +38,34 @@ public class ComputerPlayer extends Player {
      */
     public void onOpponentTurnCompleted(Game game) {
         game.swapPlayers();
-        game.checkIsGameOverOrDraw();
-        List<Move> moves = validMoves(game);
-        if (moves.isEmpty()) {
-            return;
+        if (game.checkIsGameOverOrDraw()) {
+            List<Move> moves = validMoves(game);
+            if (moves.isEmpty()) {
+                return;
+            }
+            Move chosen = moves.get(new Random().nextInt(moves.size()));
+            handleTurn(game, chosen);
+            game.swapPlayers();
+            game.checkIsGameOverOrDraw();
         }
-        Move chosen = moves.get(new Random().nextInt(moves.size()));
-        handleTurn(game, chosen);
-        game.getSupport().firePropertyChange("boardChange", null, null);
-        game.checkIsGameOverOrDraw();
+    }
+
+    /**
+     * A kezdő állapotban invertált legyen-e a játék táblája
+     */
+    public boolean getStartInverted() {
+        return true;
     }
 
     /**
      * A bot játékos első lépése előtti teendőket végzi el
      * @param game a játék, amiben a bot játékos játszik
      */
-    public void firstTurn(Game game) {
-        game.swapPlayers();
-        game.getSupport().firePropertyChange("boardChange", null, null);
+    public void beforeFirstTurn(Game game) {
         new Thread(() -> {
             try {
                 Thread.sleep(1000);
+                game.swapPlayers(); // mintha a másik játékos épp befejezte volna a játékát
                 onOpponentTurnCompleted(game);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();

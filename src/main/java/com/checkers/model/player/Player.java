@@ -80,8 +80,13 @@ public abstract class Player {
     public abstract void onOpponentTurnCompleted(Game game);
 
     /**
+     * A kezdő állapotban invertált legyen-e a játék táblája
+     */
+    public abstract boolean getStartInverted();
+
+    /**
      * A játékos első lépése előtti teendőket végzi el
      * @param game a játék, amiben a játékos játszik
      */
-    public abstract void firstTurn(Game game);
+    public abstract void beforeFirstTurn(Game game);
 }

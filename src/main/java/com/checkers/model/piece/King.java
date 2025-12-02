@@ -44,14 +44,14 @@ public class King extends Piece {
             if (canCapture) {
                 List<Capture> newPreviousCaptures = new ArrayList<>();
                 newPreviousCaptures.addAll(previosCaptures);
-                newPreviousCaptures.add(new Capture(point, to));
+                newPreviousCaptures.add(new Capture(point, to, board));
                 captures.addAll(validCaptures(board, to, newPreviousCaptures, direction));
             }
         }
                         
         if (captures.isEmpty()) {
             if (previosCaptures.size() > 1) {
-                captures.add(new CaptureSequence(previosCaptures));
+                captures.add(new CaptureSequence(previosCaptures, board));
             } else if (previosCaptures.size() == 1) {
                 captures.add(previosCaptures.getFirst());
             }
@@ -74,7 +74,7 @@ public class King extends Piece {
             Point to = new Point(point.x + direction.x, point.y + direction.y);
             
             if (Board.isInsideBoard(to) && board.isEmpty(to)) {
-                moves.add(new NormalMove(point, to));
+                moves.add(new NormalMove(point, to, board));
             }
         }
         return moves;

@@ -3,7 +3,9 @@ package com.checkers.model.move;
 import java.awt.Point;
 
 import com.checkers.model.board.*;
+import com.checkers.model.colour.Colour;
 import com.checkers.model.game.Game;
+import com.checkers.model.piece.King;
 import com.checkers.view.GamePanel;
 
 /**
@@ -15,8 +17,8 @@ public class Capture extends Move {
      * @param from a kezdő pozíció
      * @param to a végpozíció
      */
-    public Capture(Point from, Point to) {
-        super(from, to);
+    public Capture(Point from, Point to, Board board) {
+        super(from, to, board);
     }
 
     /**
@@ -40,6 +42,22 @@ public class Capture extends Move {
      */
     public void execute(Game game) {
         game.executeCapture(this);
+    }
+
+    /**
+     * Elvégzi az ütést lépést a táblán
+     * @param board a tábla, amin az ütést végezzük
+     */
+    public void execute(Board board) {
+        if (!isPromotion()) {
+            board.setPiece(board.getPiece(getFrom()), getTo());
+        } else {
+            Colour colour = board.getPiece(getFrom()).getColour();
+            board.setPiece(new King(colour), getTo());
+        }
+        board.setPiece(null, getFrom());
+        Point capturedPoint = new Point((getFrom().x + getTo().x) / 2, (getFrom().y + getTo().y) / 2);
+        board.setPiece(null, capturedPoint);
     }
 
     /**

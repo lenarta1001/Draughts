@@ -3,7 +3,9 @@ package com.checkers.model.move;
 import java.awt.Point;
 
 import com.checkers.model.board.*;
+import com.checkers.model.colour.Colour;
 import com.checkers.model.game.Game;
+import com.checkers.model.piece.King;
 import com.checkers.view.GamePanel;
 
 /**
@@ -15,8 +17,8 @@ public class NormalMove extends Move {
      * @param from a kezdő pozíció
      * @param to a végpozíció
      */
-    public NormalMove(Point from, Point to) {
-        super(from, to);
+    public NormalMove(Point from, Point to, Board board) {
+        super(from, to, board);
     }
 
     /**
@@ -40,6 +42,20 @@ public class NormalMove extends Move {
      */
     public void execute(Game game) {
         game.executeNormalMove(this);
+    }
+
+    /**
+     * Elvégzi a normál lépést a táblán
+     * @param board a tábla, amin a normál lépést végezzük
+     */
+    public void execute(Board board) {
+        if(!isPromotion()) {
+            board.setPiece(board.getPiece(getFrom()), getTo());
+        } else {
+            Colour colour = board.getPiece(getFrom()).getColour();
+            board.setPiece(new King(colour), getTo());
+        }
+        board.setPiece(null, getFrom());
     }
 
     /**

@@ -2,7 +2,6 @@ package com.checkers.model.game;
 
 import java.util.List;
 import java.util.Scanner;
-import java.awt.Point;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.BufferedWriter;
@@ -16,7 +15,6 @@ import java.util.HashMap;
 import com.checkers.model.move.*;
 import com.checkers.model.board.Board;
 import com.checkers.model.colour.Colour;
-import com.checkers.model.piece.*;
 import com.checkers.model.player.Player;
 import com.checkers.model.*;
 
@@ -30,6 +28,7 @@ public class Game {
     private List<Move> previousMoves;
     private HashMap<String, Integer> positionCounts;
     private int noPromotionCaptureCounter;
+    private boolean inverted;
     private final PropertyChangeSupport support = new PropertyChangeSupport(this);
 
     /**
@@ -41,13 +40,6 @@ public class Game {
         this.playerToMove = playerToMove;
         this.playerNotToMove = playerNotToMove;
         initGame();
-    }
-
-    /**
-     * Elkezd egy játékot
-     */
-    public void start() {
-        playerToMove.firstTurn(this);
     }
 
     /**
@@ -69,6 +61,21 @@ public class Game {
      */
     public Board getBoard() {
         return board;
+    }
+
+    /**
+     * @return invertált-e a játék táblája
+     */
+    public boolean getInverted() {
+        return inverted;
+    }
+
+    /**
+     *Beállítja az invertáltságot
+     * @param inverted az új invertált érték
+     */
+    public void setInverted(boolean inverted) {
+        this.inverted = inverted;
     }
 
     /**
@@ -99,16 +106,27 @@ public class Game {
     public boolean isDraw() {
         return isDrawRepetition() || isDrawNoPromotionCapture();
     }
+
+    /**
+     * Elkezd egy játékot
+     */
+    public void start() {
+        playerToMove.beforeFirstTurn(this);
+    }
     
     /**
-     * A nézetet értesíti a győzelemről vagy a döntetlenről 
+     * A nézetet értesíti a győzelemről vagy a döntetlenről
+     * @return valaki győzött-e vagy döntetlen-e az állás 
     */
-   public void checkIsGameOverOrDraw() {
+   public boolean checkIsGameOverOrDraw() {
        if (isGameOver()) {
            getSupport().firePropertyChange("gameOver", null, null);
+            return true;
         } else if (isDraw()) {
             getSupport().firePropertyChange("draw", null, null);
+            return true;
         }
+        return false;
     }
     
     /**
@@ -137,6 +155,7 @@ public class Game {
         if (playerToMove.getColour() != Colour.BLACK) {
             swapPlayers();
         }
+        this.inverted = playerToMove.getStartInverted();
     }
 
     /**
@@ -150,6 +169,7 @@ public class Game {
         if (playerToMove.getColour() != Colour.BLACK) {
             swapPlayers();
         }
+        this.inverted = playerToMove.getStartInverted();
     }
 
     /**
@@ -180,46 +200,40 @@ public class Game {
     }
 
     /**
-     * Egy lépés elvégzése előtt frissíti a 
-     * @param move
+     * Egy lépés elvégzése után frissíti a játékállapotot 
+     * @param move a lépés amit elvégeztünk
      */
-    public void updateCounters(Move move) {
-        if (move.isMandatory() || move.isPromotion(board)) {
+    public void updateGameState(Move move) {
+        if (move.isMandatory() || move.isPromotion()) {
             noPromotionCaptureCounter = 0;
             positionCounts.clear();
         } else {
             noPromotionCaptureCounter++;
         }
-    }
-
-    /**
-     * Egy lépés elvégzése után 
-     * @param move
-     */
-    public void updateFenAndMoves(Move move) {
         String fen = board.getFen(playerToMove);
         positionCounts.merge(fen, 1, Integer::sum);
         previousMoves.add(move);
     }
-    
+
     /**
      * A játék beolvasását végzi el
      * @param fileName 
      * @throws FileNotFoundException ha nem létetik ilyen fájl
      * @throws FileFormatException ha a fájl formátuma hibás
      * @throws InvalidMoveException ha a fájl olyan lépést olvas be, ami nem érvényes a szabályok szerint
-     */
-    public void read(String fileName) throws FileNotFoundException, FileFormatException, InvalidMoveException {
-        initGame();
-        File file = new File(fileName);
-        int roundNumber = 1;
-        try (Scanner sc = new Scanner(file)) {
-            while (sc.hasNextLine()) {
-                String line = sc.nextLine();
-                line = line.trim();
-                if (line.isEmpty() || line.charAt(0) == '[') {
-                    continue;
+    */
+   public void read(String fileName) throws FileNotFoundException, FileFormatException, InvalidMoveException {
+       initGame();
+       File file = new File(fileName);
+       int roundNumber = 0;
+       try (Scanner sc = new Scanner(file)) {
+           while (sc.hasNextLine()) {
+               String line = sc.nextLine();
+               line = line.trim();
+               if (line.isEmpty() || line.charAt(0) == '[') {
+                   continue;
                 }
+                roundNumber++;
                 String[] roundAndMoveStrings = line.split(" ");
 
                 try {
@@ -235,17 +249,16 @@ public class Game {
 
                     Move blackMove;
                     try {
-                        blackMove = Move.moveFromString(roundAndMoveStrings[1]);
+                        blackMove = Move.moveFromString(roundAndMoveStrings[1], board);
                     } catch (IllegalArgumentException e) {
                         throw new FileFormatException("Cannot parse file. A move is not correct!", e);
                     }
                     if (playerToMove.validMovesAt(this, blackMove.getFrom()).stream().anyMatch(move -> move.equals(blackMove))) { 
-                        updateCounters(blackMove);
-                        blackMove.execute(this);
-                        updateFenAndMoves(blackMove);
+                        blackMove.execute(board);
+                        updateGameState(blackMove);
                         swapPlayers();
                     } else {
-                        throw new InvalidMoveException("There is an invalid move in the file according to the rules!");
+                        throw new InvalidMoveException("There is an invalid move in the file in the " + roundNumber + ". round!");
                     }
 
                     if (isGameOver() || isDraw()) {
@@ -254,17 +267,17 @@ public class Game {
 
                     Move whiteMove;
                     try {
-                        whiteMove = Move.moveFromString(roundAndMoveStrings[2]);
+                        whiteMove = Move.moveFromString(roundAndMoveStrings[2], board);
                     } catch (IllegalArgumentException e) {
                         throw new FileFormatException("Cannot parse file. A move is not correct!", e);
                     }
                     if (playerToMove.validMoves(this).stream().anyMatch(move -> move.equals(whiteMove))) {
-                        updateCounters(whiteMove);
-                        whiteMove.execute(this);
-                        updateFenAndMoves(whiteMove);
+                        whiteMove.execute(board);
+                        updateGameState(whiteMove);
+
                         swapPlayers();
                     } else {
-                        throw new InvalidMoveException("There is an invalid move in the file according to the rules!");
+                        throw new InvalidMoveException("There is an invalid move in the file in the " + roundNumber + ". round!");
                     }
 
                     if (isGameOver() || isDraw()) {
@@ -272,20 +285,18 @@ public class Game {
                     }
 
                 } else if (roundAndMoveStrings.length == 2) {
-                    Move blackMove = Move.moveFromString(roundAndMoveStrings[1]);
+                    Move blackMove = Move.moveFromString(roundAndMoveStrings[1], board);
                     if (playerToMove.validMoves(this).stream().anyMatch(move -> move.equals(blackMove))) { 
-                        updateCounters(blackMove);
-                        blackMove.execute(this);
-                        updateFenAndMoves(blackMove);
+                        blackMove.execute(board);
+                        updateGameState(blackMove);
                         swapPlayers();
                     } else {
-                        throw new InvalidMoveException("There is an invalid move in the file according to the rules");
+                        throw new InvalidMoveException("There is an invalid move in the file in the " + roundNumber + ". round!");
                     }
                     break;
                 } else {
                     throw new FileFormatException("Cannot parse file!");
                 }
-                roundNumber++;
             }
             if (sc.hasNextLine()) {
                 throw new FileFormatException("Cannot parse file! There are more lines");
@@ -299,15 +310,7 @@ public class Game {
      * @param capture az ütés, amit végre akarunk hajtani
      */
     public void executeCapture(Capture capture) {
-        if (!capture.isPromotion(board)) {
-            board.setPiece(board.getPiece(capture.getFrom()), capture.getTo());
-        } else {
-            Colour colour = board.getPiece(capture.getFrom()).getColour();
-            board.setPiece(new King(colour), capture.getTo());
-        }
-        board.setPiece(null, capture.getFrom());
-        Point capturedPoint = new Point((capture.getFrom().x + capture.getTo().x) / 2, (capture.getFrom().y + capture.getTo().y) / 2);
-        board.setPiece(null, capturedPoint);
+        capture.execute(board);
     }
 
     /**
@@ -332,12 +335,6 @@ public class Game {
      * @param capture az egyszerű lépés, amit végre akarunk hajtani
      */
     public void executeNormalMove(NormalMove normalMove) {
-        if (!normalMove.isPromotion(board)) {
-            board.setPiece(board.getPiece(normalMove.getFrom()), normalMove.getTo());
-        } else {
-            Colour colour = board.getPiece(normalMove.getFrom()).getColour();
-            board.setPiece(new King(colour), normalMove.getTo());
-        }
-        board.setPiece(null, normalMove.getFrom());
+        normalMove.execute(board);
     }
 }

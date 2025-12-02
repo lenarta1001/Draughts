@@ -44,7 +44,7 @@ public class GamePanel extends JPanel implements PropertyChangeListener {
     public Point getSelectedPoint() {
         return selectedPoint;
     }
-  
+
     /**
      * Beállítja a kiválasztott pontot
      * @param selectedPoint a kiválasztott pont
@@ -102,7 +102,7 @@ public class GamePanel extends JPanel implements PropertyChangeListener {
     private void drawPiecesAndMoveHighligts() {
         for (int i = 1; i <= 32; i++) {
             Point p = Board.pointFromSquareNumber(i);
-            Point displayPoint = (model.getPlayerToMove().getColour() == Colour.WHITE) ? Board.invertPoint(p) : p;
+            Point displayPoint = model.getInverted() ? Board.invertPoint(p) : p;
             if (!model.getBoard().isEmpty(p)) {
                 model.getBoard().getPiece(p).draw(this, displayPoint.x, displayPoint.y);
             }
@@ -207,7 +207,7 @@ public class GamePanel extends JPanel implements PropertyChangeListener {
         if (evt.getPropertyName().equals("boardChange")) {
             javax.swing.SwingUtilities.invokeLater(this::repaint);
         } else if (evt.getPropertyName().equals("gameOver")) {
-            JOptionPane.showMessageDialog(this, "The game is over. The " + model.getPlayerNotToMove().getColour() + " player won.");
+            JOptionPane.showMessageDialog(this, "The game is over. The " + model.getPlayerNotToMove().getColour().toString().toLowerCase() + " player won.");
         } else if (evt.getPropertyName().equals("draw")) {
             StringBuilder message = new StringBuilder("It is a draw because");
             if (model.isDrawRepetition()) {

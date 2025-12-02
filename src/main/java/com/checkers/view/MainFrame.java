@@ -18,6 +18,7 @@ import com.checkers.control.GameController;
 import com.checkers.control.MainWindowListener;
 import com.checkers.model.colour.Colour;
 import com.checkers.model.game.Game;
+import com.checkers.model.game.ImportSwingWorker;
 import com.checkers.model.player.ComputerPlayer;
 import com.checkers.model.player.HumanPlayer;
 import com.checkers.model.player.Player;
@@ -145,25 +146,23 @@ public class MainFrame extends JFrame {
      */
     private void handleImport(File file, boolean isHumanBlack, boolean isVsComputer) {
         if (file == null || !file.exists()) {
-            JOptionPane.showMessageDialog(this, "Invalid file selected.", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
+             JOptionPane.showMessageDialog(this, "Invalid file selected.", "Error", JOptionPane.ERROR_MESSAGE);
+             return;
         }
+        LoadingDialog loadingDialog = new LoadingDialog(this);
 
         List<Player> players = createPlayers(isHumanBlack, isVsComputer);
-        try {
-            Game importedGame = new Game(players.get(0), players.get(1));
-            importedGame.read(file.getAbsolutePath());
-            startGame(importedGame);
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error loading file: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        }
+        ImportSwingWorker worker = new ImportSwingWorker(this, loadingDialog, players, file);
+
+        worker.execute();
+        loadingDialog.setVisible(true);
     }
 
     /**
      * Leszedi a korábban megjelenített játék panelt és megjeleníti az újat
      * @param newGame az új játék
      */
-    private void startGame(Game newGame) {
+    public void startGame(Game newGame) {
         this.game = newGame;
         
         if (currentBoardPanel != null) {

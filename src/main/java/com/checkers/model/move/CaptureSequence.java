@@ -16,8 +16,9 @@ public class CaptureSequence extends Capture {
      * Az ütéssorozat konstruktora
      * @param captures az ütéssorozat ütései
      */
-    public CaptureSequence(List<Capture> captures) {
-        super(captures.getFirst().from, captures.getLast().to);
+    public CaptureSequence(List<Capture> captures, Board board) {
+        super(captures.getFirst().from, captures.getLast().to, board);
+        captures.getLast().promotion = promotion;
         this.captures = captures;
     }
 
@@ -53,6 +54,16 @@ public class CaptureSequence extends Capture {
         game.executeCaptureSequence(this);
     }
 
+    /**
+     * Elvégzi az ütést lépést a táblán
+     * @param board a tábla, amin az ütést végezzük
+     */
+    @Override
+    public void execute(Board board) {
+        for (Capture capture : captures) {
+            capture.execute(board);
+        }
+    }
 
     /**
      * Eldönti, hogy egy másik objektummal tartalmilag azonos-e az ütéssorozat
